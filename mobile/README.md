@@ -1,54 +1,46 @@
-# Welcome to your Expo app 👋
+# CystoAI Mobile (Expo)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App móvil del proyecto **CystoAI**. Esta app usa **Expo + Expo Router** y se comunica con el backend Django.
 
-## Get started
+## Requisitos
 
-1. Install dependencies
+- Node.js LTS
+- npm
+- Android Studio (si usarás emulador)
+- Expo Go en el emulador o dispositivo
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-## Backend base URL
-
-Define `EXPO_PUBLIC_API_URL` to point to the backend you want to use. For example, create a `.env` file based on `.env.example` and set the base URL to your local backend (use your machine's LAN IP when testing on a device).
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Instalación
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Variables de entorno
 
-## Learn more
+Crea un archivo `.env` en esta carpeta basado en `.env.example`.
 
-To learn more about developing your project with Expo, look at the following resources:
+### Emulador Android (recomendado)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```dotenv
+EXPO_PUBLIC_API_URL=http://10.0.2.2:8000
+```
 
-## Join the community
+### Dispositivo físico
 
-Join our community of developers creating universal apps.
+Usa la IP LAN de tu PC (por ejemplo `http://192.168.1.100:8000`).
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Levantar el backend (resumen)
+
+En la carpeta `backend`:
+
+```bash
+docker compose up --build
+```
+
+Si usas emulador Android, agrega `10.0.2.2` en `DJANGO_ALLOWED_HOSTS` del backend.
+
+## Ejecutar la app
+
+```bash
+npm run android
+```
