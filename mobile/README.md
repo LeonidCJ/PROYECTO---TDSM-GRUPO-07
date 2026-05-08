@@ -16,6 +16,10 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
+## Backend base URL
+
+Define `EXPO_PUBLIC_API_URL` to point to the backend you want to use. For example, create a `.env` file based on `.env.example` and set the base URL to your local backend (use your machine's LAN IP when testing on a device).
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
