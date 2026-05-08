@@ -51,10 +51,18 @@ http://localhost:8000
 
 ## Migraciones
 
-En este proyecto el contenedor del backend ejecuta las migraciones al iniciar, pero si quieres correrlas manualmente:
+En este proyecto el contenedor del backend ejecuta las migraciones al iniciar, pero si creas o modificas modelos debes generar y aplicar las migraciones manualmente. Asegúrate de tener los contenedores levantados (`docker compose up -d`).
+
+Crear archivos de migración:
 
 ```bash
-docker compose run --rm backend python manage.py migrate
+docker compose exec backend python manage.py makemigrations
+```
+
+Aplicar migraciones:
+
+```bash
+docker compose exec backend python manage.py migrate
 ```
 
 ## Crear superusuario
