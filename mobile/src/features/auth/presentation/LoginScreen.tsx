@@ -33,10 +33,12 @@ export default function LoginScreen() {
       behavior={Platform.select({ ios: "padding", android: undefined })}
     >
       <View style={styles.header}>
-        <Image
-          source={require("@/assets/images/logo.png")}
-          style={styles.logoImage}
-        />
+        <View style={styles.logoBadge}>
+          <Image
+            source={require("@/assets/images/logo.png")}
+            style={styles.logoImage}
+          />
+        </View>
         <Text style={styles.title}>CystoAI</Text>
         <Text style={styles.subtitle}>Endoscopic AI Assistant</Text>
       </View>
@@ -105,11 +107,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 32,
   },
-  logoImage: {
-    width: 64,
-    height: 64,
-    resizeMode: "contain",
+  logoBadge: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: colors.surfaceContainer,
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: `${colors.outlineVariant}4D`,
+  },
+  logoImage: {
+    width: 48,
+    height: 48,
+    resizeMode: "contain",
   },
   title: {
     fontSize: 24,
