@@ -108,9 +108,9 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   logoBadge: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: colors.surfaceContainer,
     alignItems: "center",
     justifyContent: "center",
@@ -119,8 +119,8 @@ const styles = StyleSheet.create({
     borderColor: `${colors.outlineVariant}4D`,
   },
   logoImage: {
-    width: 48,
-    height: 48,
+    width: 28,
+    height: 29,
     resizeMode: "contain",
   },
   title: {
