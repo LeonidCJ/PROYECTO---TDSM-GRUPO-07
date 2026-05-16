@@ -8,14 +8,17 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 
+import { useAuth } from "@/src/core/auth/AuthContext";
+import * as authRepository from "@/src/features/auth/data/authRepository";
+import { Specialty } from "@/src/features/auth/domain/types";
 import { PrimaryButton } from "@/src/shared/components/PrimaryButton";
 import { TextField } from "@/src/shared/components/TextField";
 import { colors } from "@/src/shared/theme/colors";
 
-const SPECIALTIES = [
+const SPECIALTIES: Array<{ label: string; value: Specialty }> = [
   { label: "Urología", value: "urology" },
   { label: "Oncología", value: "oncology" },
   { label: "Patología", value: "pathology" },
@@ -25,6 +28,7 @@ const SPECIALTIES = [
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { setAuthenticated, setUser } = useAuth();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -32,8 +36,10 @@ export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [phone, setPhone] = useState("");
   const [hospital, setHospital] = useState("");
-  const [specialty, setSpecialty] = useState<string | null>(null);
+  const [specialty, setSpecialty] = useState<Specialty | null>(null);
   const [showSpecialty, setShowSpecialty] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const selectedSpecialtyLabel = useMemo(() => {
     if (!specialty) return "";
@@ -41,9 +47,41 @@ export default function RegisterScreen() {
   }, [specialty]);
 
   const isDisabled = useMemo(
-    () => !firstName || !lastName || !email || !password,
-    [firstName, lastName, email, password],
+    () => !firstName || !lastName || !email || !password || isLoading,
+    [firstName, lastName, email, password, isLoading],
   );
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const trimmedEmail = email.trim();
+      const trimmedPassword = password;
+
+      await authRepository.register({
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        email: trimmedEmail,
+        password: trimmedPassword,
+        phone: phone.trim() || undefined,
+        hospital: hospital.trim() || undefined,
+        specialty: specialty ?? undefined,
+      });
+
+      const profile = await authRepository.login({
+        email: trimmedEmail,
+        password: trimmedPassword,
+      });
+      setAuthenticated(true);
+      setUser(profile);
+      router.replace("/(tabs)" as any);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Register failed";
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -169,9 +207,12 @@ export default function RegisterScreen() {
             onChangeText={setHospital}
           />
 
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+
           <PrimaryButton
             title="Sign Up"
-            onPress={() => {}}
+            onPress={handleSubmit}
+            loading={isLoading}
             disabled={isDisabled}
           />
 
@@ -259,6 +300,12 @@ const styles = StyleSheet.create({
     color: colors.subtext,
     marginTop: -4,
     marginBottom: 12,
+  },
+  error: {
+    color: colors.error,
+    marginTop: -4,
+    marginBottom: 12,
+    fontSize: 12,
   },
   selectMenu: {
     marginTop: -4,
