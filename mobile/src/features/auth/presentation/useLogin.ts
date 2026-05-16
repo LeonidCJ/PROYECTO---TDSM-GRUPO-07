@@ -1,10 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState } from "react";
 
-import { useAuth } from '@/src/core/auth/AuthContext';
-import * as authRepository from '@/src/features/auth/data/authRepository';
+import { useAuth } from "@/src/core/auth/AuthContext";
+import * as authRepository from "@/src/features/auth/data/authRepository";
 
 export function useLogin() {
-  const { setAuthenticated } = useAuth();
+  const { setAuthenticated, setUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -12,11 +12,12 @@ export function useLogin() {
     setIsLoading(true);
     setError(null);
     try {
-      await authRepository.login({ email, password });
+      const profile = await authRepository.login({ email, password });
       setAuthenticated(true);
+      setUser(profile);
       return true;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Login failed';
+      const message = err instanceof Error ? err.message : "Login failed";
       setError(message);
       return false;
     } finally {
