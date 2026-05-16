@@ -42,7 +42,7 @@ export default function LoginScreen() {
           />
         </View>
         <Text style={styles.title}>CystoAI</Text>
-        <Text style={styles.subtitle}>Endoscopic AI Assistant</Text>
+        <Text style={styles.subtitle}>Asistente de IA endoscópica</Text>
       </View>
 
       <View style={styles.card}>
@@ -58,7 +58,7 @@ export default function LoginScreen() {
         />
 
         <TextField
-          placeholder="Password"
+          placeholder="Contraseña"
           secureTextEntry={!showPassword}
           value={password}
           onChangeText={setPassword}
@@ -83,7 +83,7 @@ export default function LoginScreen() {
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <PrimaryButton
-          title="Sign In"
+          title="Iniciar sesión"
           onPress={handleSubmit}
           loading={isLoading}
           disabled={isDisabled}
@@ -91,15 +91,15 @@ export default function LoginScreen() {
         />
 
         <TouchableOpacity style={styles.forgot}>
-          <Text style={styles.forgotText}>Forgot password?</Text>
+          <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
         </TouchableOpacity>
 
         <View style={styles.registerRow}>
-          <Text style={styles.registerText}>Don't have an account?</Text>
+          <Text style={styles.registerText}>¿No tienes cuenta?</Text>
           <TouchableOpacity
             onPress={() => router.push("/(auth)/register" as any)}
           >
-            <Text style={styles.registerLink}>Sign up</Text>
+            <Text style={styles.registerLink}>Regístrate</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -76,7 +76,8 @@ export default function RegisterScreen() {
       setUser(profile);
       router.replace("/(tabs)" as any);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Register failed";
+      const message =
+        err instanceof Error ? err.message : "No se pudo registrar";
       setError(message);
     } finally {
       setIsLoading(false);
@@ -100,33 +101,33 @@ export default function RegisterScreen() {
           >
             <Ionicons name="arrow-back" size={22} color={colors.primary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Create Account</Text>
+          <Text style={styles.headerTitle}>Crear cuenta</Text>
           <View style={styles.headerSpacer} />
         </View>
 
         <View style={styles.hero}>
-          <Text style={styles.heroTitle}>Join our medical community</Text>
+          <Text style={styles.heroTitle}>Únete a nuestra comunidad médica</Text>
           <Text style={styles.heroSubtitle}>
-            Access advanced AI diagnostics and seamless patient management.
+            Accede a diagnósticos avanzados con IA y gestión clínica eficiente.
           </Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.label}>First Name *</Text>
+          <Text style={styles.label}>Nombre *</Text>
           <TextField
-            placeholder="Enter first name"
+            placeholder="Ingresa tu nombre"
             value={firstName}
             onChangeText={setFirstName}
           />
 
-          <Text style={styles.label}>Last Name *</Text>
+          <Text style={styles.label}>Apellido *</Text>
           <TextField
-            placeholder="Enter last name"
+            placeholder="Ingresa tu apellido"
             value={lastName}
             onChangeText={setLastName}
           />
 
-          <Text style={styles.label}>Email Address *</Text>
+          <Text style={styles.label}>Correo electrónico *</Text>
           <TextField
             placeholder="example@hospital.com"
             keyboardType="email-address"
@@ -135,9 +136,9 @@ export default function RegisterScreen() {
             onChangeText={setEmail}
           />
 
-          <Text style={styles.label}>Password *</Text>
+          <Text style={styles.label}>Contraseña *</Text>
           <TextField
-            placeholder="Create a strong password"
+            placeholder="Crea una contraseña segura"
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
@@ -153,9 +154,9 @@ export default function RegisterScreen() {
               </TouchableOpacity>
             }
           />
-          <Text style={styles.helper}>Minimum 8 characters</Text>
+          <Text style={styles.helper}>Mínimo 8 caracteres</Text>
 
-          <Text style={styles.label}>Phone Number (Optional)</Text>
+          <Text style={styles.label}>Número de teléfono (opcional)</Text>
           <TextField
             placeholder="+1 (555) 000-0000"
             keyboardType="phone-pad"
@@ -163,14 +164,14 @@ export default function RegisterScreen() {
             onChangeText={setPhone}
           />
 
-          <Text style={styles.label}>Specialty (Optional)</Text>
+          <Text style={styles.label}>Especialidad (opcional)</Text>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => setShowSpecialty((prev) => !prev)}
           >
             <View pointerEvents="none">
               <TextField
-                placeholder="Select specialty"
+                placeholder="Selecciona especialidad"
                 value={selectedSpecialtyLabel}
                 editable={false}
                 rightIcon={
@@ -200,9 +201,9 @@ export default function RegisterScreen() {
             </View>
           ) : null}
 
-          <Text style={styles.label}>Hospital (Optional)</Text>
+          <Text style={styles.label}>Hospital (opcional)</Text>
           <TextField
-            placeholder="Institution name"
+            placeholder="Nombre de la institución"
             value={hospital}
             onChangeText={setHospital}
           />
@@ -210,18 +211,18 @@ export default function RegisterScreen() {
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <PrimaryButton
-            title="Sign Up"
+            title="Registrarse"
             onPress={handleSubmit}
             loading={isLoading}
             disabled={isDisabled}
           />
 
           <View style={styles.footerRow}>
-            <Text style={styles.footerText}>Already have an account?</Text>
+            <Text style={styles.footerText}>¿Ya tienes una cuenta?</Text>
             <TouchableOpacity
               onPress={() => router.push("/(auth)/login" as any)}
             >
-              <Text style={styles.footerLink}>Login</Text>
+              <Text style={styles.footerLink}>Iniciar sesión</Text>
             </TouchableOpacity>
           </View>
         </View>

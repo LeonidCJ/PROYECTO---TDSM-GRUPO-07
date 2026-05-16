@@ -22,14 +22,14 @@ export default function HomeScreen() {
 
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
+    if (hour < 12) return "Buenos días";
+    if (hour < 18) return "Buenas tardes";
+    return "Buenas noches";
   }, []);
 
   const dateLabel = useMemo(
     () =>
-      new Date().toLocaleDateString("en-US", {
+      new Date().toLocaleDateString("es-PE", {
         weekday: "long",
         month: "long",
         day: "numeric",
@@ -69,7 +69,7 @@ export default function HomeScreen() {
       <Text style={styles.date}>{dateLabel}</Text>
 
       <View style={styles.summaryCard}>
-        <Text style={styles.summaryTitle}>Today's analyses</Text>
+        <Text style={styles.summaryTitle}>Análisis de hoy</Text>
         <Text style={styles.summaryValue}>3</Text>
       </View>
 
@@ -78,12 +78,12 @@ export default function HomeScreen() {
           <Ionicons name="camera-outline" size={22} color={colors.primary} />
         </View>
         <View style={styles.primaryContent}>
-          <Text style={styles.primaryTitle}>New cystoscopy analysis</Text>
+          <Text style={styles.primaryTitle}>Nuevo análisis de cistoscopía</Text>
           <Text style={styles.primaryText}>
-            Capture or upload an endoscopic image for AI classification.
+            Captura o sube una imagen endoscópica para clasificación con IA.
           </Text>
           <TouchableOpacity activeOpacity={0.7} style={styles.primaryAction}>
-            <Text style={styles.primaryActionText}>Start analysis</Text>
+            <Text style={styles.primaryActionText}>Iniciar análisis</Text>
             <Ionicons name="arrow-forward" size={16} color={colors.primary} />
           </TouchableOpacity>
         </View>
@@ -94,7 +94,7 @@ export default function HomeScreen() {
           <View style={styles.gridIconWrap}>
             <Ionicons name="list-outline" size={22} color={colors.text} />
           </View>
-          <Text style={styles.gridLabel}>Patient history</Text>
+          <Text style={styles.gridLabel}>Historial de pacientes</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.gridCard} activeOpacity={0.8}>
@@ -105,12 +105,12 @@ export default function HomeScreen() {
               color={colors.text}
             />
           </View>
-          <Text style={styles.gridLabel}>Generate report</Text>
+          <Text style={styles.gridLabel}>Generar informe</Text>
         </TouchableOpacity>
       </View>
 
       <Text style={styles.footerNote}>
-        AI support tool — does not replace specialist judgment
+        Herramienta de apoyo — no reemplaza el criterio del especialista
       </Text>
     </View>
   );
