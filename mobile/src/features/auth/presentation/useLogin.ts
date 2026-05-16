@@ -17,7 +17,11 @@ export function useLogin() {
       setUser(profile);
       return true;
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Login failed";
+      const rawMessage = err instanceof Error ? err.message : "Login failed";
+      const normalized = rawMessage.toLowerCase();
+      const message = normalized.includes("no active account")
+        ? "Credenciales incorrectas"
+        : "No se pudo iniciar sesión";
       setError(message);
       return false;
     } finally {
