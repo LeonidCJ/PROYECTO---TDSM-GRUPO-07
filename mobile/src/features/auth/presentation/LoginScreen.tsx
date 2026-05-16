@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import {
     Image,
@@ -16,6 +17,7 @@ import { TextField } from "@/src/shared/components/TextField";
 import { colors } from "@/src/shared/theme/colors";
 
 export default function LoginScreen() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -91,6 +93,15 @@ export default function LoginScreen() {
         <TouchableOpacity style={styles.forgot}>
           <Text style={styles.forgotText}>Forgot password?</Text>
         </TouchableOpacity>
+
+        <View style={styles.registerRow}>
+          <Text style={styles.registerText}>Don't have an account?</Text>
+          <TouchableOpacity
+            onPress={() => router.push("/(auth)/register" as any)}
+          >
+            <Text style={styles.registerLink}>Sign up</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </KeyboardAvoidingView>
   );
@@ -155,6 +166,22 @@ const styles = StyleSheet.create({
   forgotText: {
     color: colors.primaryContainer,
     fontWeight: "600",
+  },
+  registerRow: {
+    marginTop: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+  registerText: {
+    color: colors.subtext,
+    fontSize: 13,
+  },
+  registerLink: {
+    color: colors.primaryContainer,
+    fontWeight: "700",
+    fontSize: 13,
   },
   error: {
     color: colors.error,

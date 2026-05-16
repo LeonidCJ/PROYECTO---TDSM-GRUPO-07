@@ -1,13 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useMemo } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "@/src/core/auth/AuthContext";
 import { colors } from "@/src/shared/theme/colors";
 
 export default function HomeScreen() {
-  const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { user } = useAuth();
   const firstName = user?.first_name?.trim() ?? "";
   const lastName = user?.last_name?.trim() ?? "";
@@ -39,9 +39,7 @@ export default function HomeScreen() {
   );
 
   return (
-    <View
-      style={[styles.container, { paddingTop: Math.max(16, insets.top + 8) }]}
-    >
+    <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.brand}>
           <View style={styles.logoBadge}>
@@ -53,7 +51,11 @@ export default function HomeScreen() {
           <Text style={styles.brandText}>CystoAI</Text>
         </View>
 
-        <TouchableOpacity style={styles.profileChip} activeOpacity={0.85}>
+        <TouchableOpacity
+          style={styles.profileChip}
+          activeOpacity={0.85}
+          onPress={() => router.push("/profile" as any)}
+        >
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{initials}</Text>
           </View>

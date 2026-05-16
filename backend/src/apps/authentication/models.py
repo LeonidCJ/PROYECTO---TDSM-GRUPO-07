@@ -35,6 +35,22 @@ class User(AbstractUser):
 	username = None
 	email = models.EmailField("email address", unique=True)
 
+	class Specialty(models.TextChoices):
+		UROLOGY = "urology", "Urología"
+		ONCOLOGY = "oncology", "Oncología"
+		PATHOLOGY = "pathology", "Patología"
+		RADIOLOGY = "radiology", "Radiología"
+		OTHER = "other", "Otro"
+
+	phone = models.CharField(max_length=32, blank=True)
+	specialty = models.CharField(
+		max_length=32,
+		choices=Specialty.choices,
+		default=Specialty.OTHER,
+		blank=True,
+	)
+	hospital = models.CharField(max_length=120, blank=True)
+
 	USERNAME_FIELD = "email"
 	REQUIRED_FIELDS: list[str] = []
 
