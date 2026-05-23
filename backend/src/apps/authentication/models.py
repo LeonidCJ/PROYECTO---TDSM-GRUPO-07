@@ -1,3 +1,5 @@
+import uuid
+
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
@@ -33,7 +35,14 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser):
 	username = None
+	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 	email = models.EmailField("email address", unique=True)
+	first_name = models.CharField(max_length=150)
+	last_name = models.CharField(max_length=150)
+
+	class Role(models.TextChoices):
+		ADMIN = "admin", "Admin"
+		DOCTOR = "doctor", "Doctor"
 
 	class Specialty(models.TextChoices):
 		UROLOGY = "urology", "Urología"
@@ -43,6 +52,7 @@ class User(AbstractUser):
 		OTHER = "other", "Otro"
 
 	phone = models.CharField(max_length=32, blank=True)
+	role = models.CharField(max_length=16, choices=Role.choices, default=Role.DOCTOR)
 	specialty = models.CharField(
 		max_length=32,
 		choices=Specialty.choices,
@@ -50,6 +60,8 @@ class User(AbstractUser):
 		blank=True,
 	)
 	hospital = models.CharField(max_length=120, blank=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
 
 	USERNAME_FIELD = "email"
 	REQUIRED_FIELDS: list[str] = []

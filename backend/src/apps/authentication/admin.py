@@ -8,21 +8,22 @@ from .models import User
 class UserAdmin(BaseUserAdmin):
 	model = User
 	ordering = ("email",)
-	list_display = ("email", "first_name", "last_name", "is_staff", "is_active")
-	list_filter = ("is_staff", "is_active", "is_superuser", "groups")
+	list_display = ("email", "first_name", "last_name", "role", "is_staff", "is_active")
+	list_filter = ("role", "is_staff", "is_active", "is_superuser", "groups")
 	search_fields = ("email", "first_name", "last_name")
+	readonly_fields = ("created_at", "updated_at")
 
 	fieldsets = (
 		(None, {"fields": ("email", "password")}),
 		(
 			"Personal info",
-			{"fields": ("first_name", "last_name", "phone", "specialty", "hospital")},
+			{"fields": ("first_name", "last_name", "phone", "specialty", "hospital", "role")},
 		),
 		(
 			"Permissions",
 			{"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")},
 		),
-		("Important dates", {"fields": ("last_login", "date_joined")}),
+		("Important dates", {"fields": ("last_login", "date_joined", "created_at", "updated_at")}),
 	)
 
 	add_fieldsets = (
@@ -36,6 +37,7 @@ class UserAdmin(BaseUserAdmin):
 					"password2",
 					"first_name",
 					"last_name",
+					"role",
 					"phone",
 					"specialty",
 					"hospital",

@@ -6,6 +6,7 @@ User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
+    role = serializers.ChoiceField(choices=User.Role.choices, default=User.Role.DOCTOR)
 
     class Meta:
         model = User
@@ -14,10 +15,15 @@ class RegisterSerializer(serializers.ModelSerializer):
             "password",
             "first_name",
             "last_name",
+            "role",
             "phone",
             "specialty",
             "hospital",
         )
+        extra_kwargs = {
+            "first_name": {"required": True},
+            "last_name": {"required": True},
+        }
 
     def create(self, validated_data):
         password = validated_data.pop("password")
@@ -33,6 +39,7 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "last_name",
+            "role",
             "phone",
             "specialty",
             "hospital",
