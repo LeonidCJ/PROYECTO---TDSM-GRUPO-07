@@ -19,7 +19,7 @@ class Patient(BaseUUIDModel):
     )
     patient_code = models.CharField(max_length=32, unique=True)
     full_name = models.CharField(max_length=200)
-    birth_date = models.DateField()
+    birth_date = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=16, choices=Gender.choices)
     is_smoker = models.BooleanField(default=False)
     has_previous_bladder_cancer = models.BooleanField(default=False)
