@@ -82,7 +82,11 @@ export default function HomeScreen() {
           <Text style={styles.primaryText}>
             Captura o sube una imagen endoscópica para clasificación con IA.
           </Text>
-          <TouchableOpacity activeOpacity={0.7} style={styles.primaryAction}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={styles.primaryAction}
+            onPress={() => router.push("/patient-form?mode=analysis" as any)}
+          >
             <Text style={styles.primaryActionText}>Iniciar análisis</Text>
             <Ionicons name="arrow-forward" size={16} color={colors.primary} />
           </TouchableOpacity>
@@ -90,11 +94,15 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.grid}>
-        <TouchableOpacity style={styles.gridCard} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={styles.gridCard}
+          activeOpacity={0.8}
+          onPress={() => router.push("/patients" as any)}
+        >
           <View style={styles.gridIconWrap}>
             <Ionicons name="list-outline" size={22} color={colors.text} />
           </View>
-          <Text style={styles.gridLabel}>Historial de pacientes</Text>
+          <Text style={styles.gridLabel}>Mis pacientes</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.gridCard} activeOpacity={0.8}>

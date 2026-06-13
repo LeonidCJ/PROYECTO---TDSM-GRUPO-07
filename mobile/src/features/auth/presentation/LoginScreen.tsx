@@ -50,6 +50,7 @@ export default function LoginScreen() {
           placeholder="doctor@hospital.com"
           keyboardType="email-address"
           autoCapitalize="none"
+          showSoftInputOnFocus
           value={email}
           onChangeText={setEmail}
           leftIcon={

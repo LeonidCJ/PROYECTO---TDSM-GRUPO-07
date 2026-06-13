@@ -29,6 +29,9 @@ export default function RootLayout() {
               <Stack>
                 <Stack.Screen name="(auth)" options={{ headerShown: false }} />
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="profile" options={{ headerShown: false }} />
+                <Stack.Screen name="patient-form" options={{ headerShown: false }} />
+                <Stack.Screen name="patients" options={{ headerShown: false }} />
               </Stack>
             </AuthGate>
           </AuthProvider>
