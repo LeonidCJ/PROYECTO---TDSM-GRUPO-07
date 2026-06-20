@@ -1,55 +1,38 @@
 export const colors = {
-  primary: "#005596",
-  primaryContainer: "#0A6EBD",
-  primaryDark: "#005596",
-  onPrimary: "#FFFFFF",
-  onPrimaryContainer: "#E6EEFF",
-  inversePrimary: "#A1C9FF",
-  primaryFixed: "#D3E4FF",
-  primaryFixedDim: "#A1C9FF",
-  onPrimaryFixed: "#001C38",
-  onPrimaryFixedVariant: "#004880",
-  secondary: "#006B55",
-  onSecondary: "#FFFFFF",
-  secondaryContainer: "#8FF6D4",
-  onSecondaryContainer: "#00725A",
-  secondaryFixed: "#8FF6D4",
-  secondaryFixedDim: "#72D9B9",
-  onSecondaryFixed: "#002118",
-  onSecondaryFixedVariant: "#00513F",
-  tertiary: "#854100",
-  onTertiary: "#FFFFFF",
-  tertiaryContainer: "#AA5400",
-  onTertiaryContainer: "#FFEADF",
-  tertiaryFixed: "#FFDCC6",
-  tertiaryFixedDim: "#FFB786",
-  onTertiaryFixed: "#311300",
-  onTertiaryFixedVariant: "#723600",
-  text: "#181C21",
-  subtext: "#414751",
-  onSurface: "#181C21",
-  onSurfaceVariant: "#414751",
-  inverseSurface: "#2D3136",
-  inverseOnSurface: "#EFF0F8",
-  surfaceTint: "#0060A8",
-  outline: "#717782",
-  outlineVariant: "#C1C7D3",
-  cardBorder: "#D1D9E6",
-  border: "#C1C7D3",
-  background: "#F8F9FF",
-  onBackground: "#181C21",
-  surface: "#FFFFFF",
-  surfaceDim: "#D8DAE1",
-  surfaceBright: "#F8F9FF",
-  surfaceContainerLowest: "#FFFFFF",
-  surfaceContainerLow: "#F2F3FB",
-  surfaceContainer: "#ECEEF5",
-  surfaceContainerHigh: "#E6E8EF",
-  surfaceContainerHighest: "#E0E2E9",
-  surfaceVariant: "#E0E2E9",
-  white: "#FFFFFF",
-  error: "#BA1A1A",
-  onError: "#FFFFFF",
-  errorContainer: "#FFDAD6",
-  onErrorContainer: "#93000A",
+  // ── Brand ─────────────────────────────────────────────────────────
+  primary: '#0D2137',      // Deep navy — hero bg, brand marks
+  accent: '#0891B2',       // Medical teal — CTAs, active states, links
+  accentLight: '#E0F2FE', // Teal tint — accent surface backgrounds
+  accentDim: '#0E7490',   // Teal pressed / hover state
+
+  // ── Text ──────────────────────────────────────────────────────────
+  text: '#111827',
+  textSub: '#6B7280',
+  textDisabled: '#9CA3AF',
+  textInverse: '#FFFFFF',
+
+  // ── Surfaces ──────────────────────────────────────────────────────
+  background: '#F1F3F7',  // App background — cool neutral gray
+  surface: '#FFFFFF',      // Cards, panels, inputs
+  surfaceMuted: '#F8F9FC', // Nested / secondary surfaces
+
+  // ── Borders ───────────────────────────────────────────────────────
+  border: '#E2E6ED',
+  borderStrong: '#C4CAD4', // Inputs (more defined)
+
+  // ── Semantic ──────────────────────────────────────────────────────
+  success: '#059669',
+  successLight: '#ECFDF5',
+  warning: '#D97706',
+  warningLight: '#FFFBEB',
+  error: '#DC2626',
+  errorLight: '#FEF2F2',
+
+  // ── Misc ──────────────────────────────────────────────────────────
+  white: '#FFFFFF',
+  black: '#000000',
+
+  // ── Risk chips (patient risk factors) ─────────────────────────────
+  riskBg: '#FEF3C7',
+  riskText: '#92400E',
 };

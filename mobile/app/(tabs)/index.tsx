@@ -1,125 +1,117 @@
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useMemo } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useMemo } from 'react';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { useAuth } from "@/src/core/auth/AuthContext";
-import { colors } from "@/src/shared/theme/colors";
+import { useAuth } from '@/src/core/auth/AuthContext';
+import { colors, radius, spacing, typography } from '@/src/shared/theme';
 
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
-  const firstName = user?.first_name?.trim() ?? "";
-  const lastName = user?.last_name?.trim() ?? "";
-  const fullName = [firstName, lastName].filter(Boolean).join(" ");
-  const displayName = fullName ? `Dr. ${fullName}` : "Dr. Rivera";
-  const initials =
-    [firstName, lastName]
-      .filter(Boolean)
-      .map((name) => name[0])
-      .join("")
-      .toUpperCase() || "DR";
+
+  const firstName = user?.first_name?.trim() ?? '';
+  const lastName  = user?.last_name?.trim()  ?? '';
+  const fullName  = [firstName, lastName].filter(Boolean).join(' ');
+  const displayName = fullName ? `Dr. ${fullName}` : 'Dr.';
+  const initials = [firstName, lastName]
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase() || 'DR';
 
   const greeting = useMemo(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Buenos días";
-    if (hour < 18) return "Buenas tardes";
-    return "Buenas noches";
+    const h = new Date().getHours();
+    if (h < 12) return 'Buenos días';
+    if (h < 18) return 'Buenas tardes';
+    return 'Buenas noches';
   }, []);
 
   const dateLabel = useMemo(
     () =>
-      new Date().toLocaleDateString("es-PE", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year: "numeric",
+      new Date().toLocaleDateString('es-PE', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
       }),
     [],
   );
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      {/* ── Navbar ─────────────────────────────────────────── */}
+      <View style={styles.navbar}>
         <View style={styles.brand}>
-          <View style={styles.logoBadge}>
-            <Image
-              source={require("@/assets/images/logo.png")}
-              style={styles.logoImage}
-            />
-          </View>
-          <Text style={styles.brandText}>CystoAI</Text>
+          <Image
+            source={require('@/assets/images/logo.png')}
+            style={styles.brandLogo}
+          />
+          <Text style={styles.brandName}>CystoAI</Text>
         </View>
 
         <TouchableOpacity
           style={styles.profileChip}
           activeOpacity={0.85}
-          onPress={() => router.push("/profile" as any)}
+          onPress={() => router.push('/profile' as any)}
         >
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{initials}</Text>
           </View>
-          <Text style={styles.profileName}>{displayName}</Text>
+          <Text style={styles.profileLabel}>{displayName}</Text>
+          <Ionicons name="chevron-forward" size={13} color={colors.textSub} />
         </TouchableOpacity>
       </View>
 
-      <View style={styles.headerDivider} />
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* ── Hero ───────────────────────────────────────────── */}
+        <View style={styles.hero}>
+          <View style={styles.heroText}>
+            <Text style={styles.heroGreeting}>{greeting}</Text>
+            <Text style={styles.heroName}>{displayName}</Text>
+            <Text style={styles.heroDate}>{dateLabel}</Text>
+          </View>
 
-      <Text style={styles.greeting}>{`${greeting}, ${displayName}`}</Text>
-      <Text style={styles.date}>{dateLabel}</Text>
-
-      <View style={styles.summaryCard}>
-        <Text style={styles.summaryTitle}>Análisis de hoy</Text>
-        <Text style={styles.summaryValue}>3</Text>
-      </View>
-
-      <View style={styles.primaryCard}>
-        <View style={styles.primaryIconWrap}>
-          <Ionicons name="camera-outline" size={22} color={colors.primary} />
-        </View>
-        <View style={styles.primaryContent}>
-          <Text style={styles.primaryTitle}>Nuevo análisis de cistoscopía</Text>
-          <Text style={styles.primaryText}>
-            Captura o sube una imagen endoscópica para clasificación con IA.
-          </Text>
           <TouchableOpacity
-            activeOpacity={0.7}
-            style={styles.primaryAction}
-            onPress={() => router.push("/patient-form?mode=analysis" as any)}
+            style={styles.heroBtn}
+            activeOpacity={0.85}
+            onPress={() => router.push('/patient-select' as any)}
           >
-            <Text style={styles.primaryActionText}>Iniciar análisis</Text>
-            <Ionicons name="arrow-forward" size={16} color={colors.primary} />
+            <Ionicons name="camera-outline" size={16} color={colors.white} />
+            <Text style={styles.heroBtnText}>Iniciar análisis</Text>
+            <Ionicons name="arrow-forward" size={15} color={colors.white} />
           </TouchableOpacity>
         </View>
-      </View>
 
-      <View style={styles.grid}>
-        <TouchableOpacity
-          style={styles.gridCard}
-          activeOpacity={0.8}
-          onPress={() => router.push("/patients" as any)}
-        >
-          <View style={styles.gridIconWrap}>
-            <Ionicons name="list-outline" size={22} color={colors.text} />
-          </View>
-          <Text style={styles.gridLabel}>Mis pacientes</Text>
-        </TouchableOpacity>
+        {/* ── Acciones rápidas ───────────────────────────────── */}
+        <Text style={styles.sectionLabel}>ACCIONES RÁPIDAS</Text>
 
-        <TouchableOpacity style={styles.gridCard} activeOpacity={0.8}>
-          <View style={styles.gridIconWrap}>
-            <Ionicons
-              name="document-text-outline"
-              size={22}
-              color={colors.text}
-            />
-          </View>
-          <Text style={styles.gridLabel}>Generar informe</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.grid}>
+          <TouchableOpacity
+            style={styles.gridCard}
+            activeOpacity={0.8}
+            onPress={() => router.push('/patients' as any)}
+          >
+            <View style={styles.gridIcon}>
+              <Ionicons name="people-outline" size={22} color={colors.accent} />
+            </View>
+            <Text style={styles.gridTitle}>Mis pacientes</Text>
+            <Text style={styles.gridSub}>Gestionar registros</Text>
+          </TouchableOpacity>
 
-      <Text style={styles.footerNote}>
-        Herramienta de apoyo — no reemplaza el criterio del especialista
-      </Text>
+          <TouchableOpacity style={styles.gridCard} activeOpacity={0.8}>
+            <View style={styles.gridIcon}>
+              <Ionicons name="document-text-outline" size={22} color={colors.accent} />
+            </View>
+            <Text style={styles.gridTitle}>Informes</Text>
+            <Text style={styles.gridSub}>Generar y exportar</Text>
+          </TouchableOpacity>
+        </View>
+
+      </ScrollView>
     </View>
   );
 }
@@ -128,198 +120,149 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingHorizontal: 20,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 12,
+
+  // Navbar
+  navbar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   brand: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
   },
-  logoBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.surfaceContainer,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: `${colors.outlineVariant}4D`,
+  brandLogo: {
+    width: 22,
+    height: 22,
+    resizeMode: 'contain',
   },
-  logoImage: {
-    width: 18,
-    height: 18,
-    resizeMode: "contain",
-  },
-  brandText: {
-    fontSize: 18,
-    fontWeight: "700",
+  brandName: {
+    ...typography.heading,
+    fontWeight: '800',
     color: colors.primary,
   },
   profileChip: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     backgroundColor: colors.surface,
-    borderRadius: 999,
+    borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: colors.cardBorder,
+    borderColor: colors.border,
     paddingVertical: 6,
-    paddingHorizontal: 10,
-    gap: 8,
+    paddingHorizontal: spacing.sm,
   },
   avatar: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.primaryFixed,
-    alignItems: "center",
-    justifyContent: "center",
+    width: 26,
+    height: 26,
+    borderRadius: radius.full,
+    backgroundColor: colors.accentLight,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   avatarText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: colors.primary,
+    ...typography.caption,
+    fontWeight: '700',
+    color: colors.accent,
   },
-  profileName: {
-    fontSize: 13,
-    fontWeight: "600",
+  profileLabel: {
+    ...typography.bodySm,
+    fontWeight: '600',
     color: colors.text,
   },
-  headerDivider: {
-    height: 1,
-    backgroundColor: colors.outlineVariant,
-    marginHorizontal: -20,
-    marginBottom: 16,
-    marginTop: -4,
+
+  // Scroll
+  scroll: { flex: 1 },
+  content: {
+    padding: spacing.md,
+    gap: spacing.md,
+    paddingBottom: spacing.xxl,
   },
-  greeting: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 6,
+
+  // Hero
+  hero: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    gap: spacing.lg,
   },
-  date: {
-    fontSize: 14,
-    color: colors.subtext,
-    marginBottom: 20,
+  heroText: { gap: 4 },
+  heroGreeting: {
+    ...typography.bodySm,
+    color: 'rgba(255,255,255,0.55)',
   },
-  summaryCard: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: 16,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    borderStyle: "solid",
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    shadowOffset: { width: 0, height: 0 },
-    elevation: 0,
+  heroName: {
+    ...typography.display,
+    color: colors.white,
   },
-  summaryTitle: {
-    fontSize: 14,
-    color: colors.subtext,
-    marginBottom: 8,
+  heroDate: {
+    ...typography.caption,
+    color: 'rgba(255,255,255,0.45)',
+    textTransform: 'capitalize',
   },
-  summaryValue: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: colors.primary,
+  heroBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    alignSelf: 'flex-start',
+    backgroundColor: colors.accent,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.full,
   },
-  primaryCard: {
-    flexDirection: "row",
-    gap: 14,
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.primary,
-    marginBottom: 18,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
+  heroBtnText: {
+    ...typography.bodySm,
+    fontWeight: '700',
+    color: colors.white,
   },
-  primaryIconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: colors.surfaceContainerLow,
-    alignItems: "center",
-    justifyContent: "center",
+
+  // Section
+  sectionLabel: {
+    ...typography.label,
+    color: colors.textSub,
   },
-  primaryContent: {
-    flex: 1,
-  },
-  primaryTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 6,
-  },
-  primaryText: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: colors.subtext,
-    marginBottom: 10,
-  },
-  primaryAction: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  primaryActionText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: colors.primary,
-  },
+
+  // Grid
   grid: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 24,
+    flexDirection: 'row',
+    gap: spacing.md,
   },
   gridCard: {
     flex: 1,
     backgroundColor: colors.surface,
-    borderRadius: 16,
-    paddingVertical: 18,
-    alignItems: "center",
+    borderRadius: radius.lg,
+    padding: spacing.md,
     borderWidth: 1,
-    borderColor: colors.cardBorder,
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
+    borderColor: colors.border,
+    gap: 4,
   },
-  gridIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.surfaceContainerLow,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
+  gridIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.accentLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
   },
-  gridLabel: {
-    fontSize: 13,
-    fontWeight: "600",
+  gridTitle: {
+    ...typography.bodySm,
+    fontWeight: '700',
     color: colors.text,
   },
-  footerNote: {
-    textAlign: "center",
-    fontSize: 12,
-    color: colors.outline,
-    marginTop: "auto",
-    paddingBottom: 8,
+  gridSub: {
+    ...typography.caption,
+    color: colors.textSub,
+  },
+
+  disclaimer: {
+    ...typography.caption,
+    color: colors.textDisabled,
+    textAlign: 'center',
+    marginTop: spacing.xs,
   },
 });

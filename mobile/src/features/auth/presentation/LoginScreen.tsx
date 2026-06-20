@@ -1,61 +1,59 @@
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useMemo, useState } from 'react';
 import {
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
-import { useLogin } from "@/src/features/auth/presentation/useLogin";
-import { PrimaryButton } from "@/src/shared/components/PrimaryButton";
-import { TextField } from "@/src/shared/components/TextField";
-import { colors } from "@/src/shared/theme/colors";
+import { useLogin } from '@/src/features/auth/presentation/useLogin';
+import { PrimaryButton } from '@/src/shared/components/PrimaryButton';
+import { TextField } from '@/src/shared/components/TextField';
+import { colors, radius, spacing, typography } from '@/src/shared/theme';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail]               = useState('');
+  const [password, setPassword]         = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { submit, isLoading, error } = useLogin();
+  const { submit, isLoading, error }    = useLogin();
 
   const isDisabled = useMemo(() => !email || !password, [email, password]);
-
-  const handleSubmit = () => {
-    submit(email.trim(), password);
-  };
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.select({ ios: "padding", android: undefined })}
+      behavior={Platform.select({ ios: 'padding', android: undefined })}
     >
-      <View style={styles.header}>
+      {/* ── Brand ─────────────────────────────────────── */}
+      <View style={styles.brand}>
         <View style={styles.logoBadge}>
           <Image
-            source={require("@/assets/images/logo.png")}
+            source={require('@/assets/images/logo.png')}
             style={styles.logoImage}
           />
         </View>
-        <Text style={styles.title}>CystoAI</Text>
-        <Text style={styles.subtitle}>Asistente de IA endoscópica</Text>
+        <Text style={styles.appName}>CystoAI</Text>
+        <Text style={styles.tagline}>Asistente de IA endoscópica</Text>
       </View>
 
+      {/* ── Form card ─────────────────────────────────── */}
       <View style={styles.card}>
+        <Text style={styles.cardTitle}>Iniciar sesión</Text>
+
         <TextField
-          placeholder="doctor@hospital.com"
+          placeholder="Correo electrónico"
           keyboardType="email-address"
           autoCapitalize="none"
           showSoftInputOnFocus
           value={email}
           onChangeText={setEmail}
-          leftIcon={
-            <Ionicons name="mail-outline" size={18} color={colors.subtext} />
-          }
+          leftIcon={<Ionicons name="mail-outline" size={18} color={colors.textSub} />}
         />
 
         <TextField
@@ -64,18 +62,14 @@ export default function LoginScreen() {
           value={password}
           onChangeText={setPassword}
           leftIcon={
-            <Ionicons
-              name="lock-closed-outline"
-              size={18}
-              color={colors.subtext}
-            />
+            <Ionicons name="lock-closed-outline" size={18} color={colors.textSub} />
           }
           rightIcon={
-            <TouchableOpacity onPress={() => setShowPassword((prev) => !prev)}>
+            <TouchableOpacity onPress={() => setShowPassword((p) => !p)}>
               <Ionicons
-                name={showPassword ? "eye-outline" : "eye-off-outline"}
+                name={showPassword ? 'eye-outline' : 'eye-off-outline'}
                 size={18}
-                color={colors.subtext}
+                color={colors.textSub}
               />
             </TouchableOpacity>
           }
@@ -85,21 +79,19 @@ export default function LoginScreen() {
 
         <PrimaryButton
           title="Iniciar sesión"
-          onPress={handleSubmit}
+          onPress={() => submit(email.trim(), password)}
           loading={isLoading}
           disabled={isDisabled}
-          style={styles.signIn}
+          style={styles.submitBtn}
         />
 
-        <TouchableOpacity style={styles.forgot}>
+        <TouchableOpacity style={styles.forgotRow}>
           <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
         </TouchableOpacity>
 
         <View style={styles.registerRow}>
-          <Text style={styles.registerText}>¿No tienes cuenta?</Text>
-          <TouchableOpacity
-            onPress={() => router.push("/(auth)/register" as any)}
-          >
+          <Text style={styles.registerText}>¿No tienes cuenta? </Text>
+          <TouchableOpacity onPress={() => router.push('/(auth)/register' as any)}>
             <Text style={styles.registerLink}>Regístrate</Text>
           </TouchableOpacity>
         </View>
@@ -112,81 +104,85 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    paddingHorizontal: 24,
-    justifyContent: "center",
+    paddingHorizontal: spacing.lg,
+    justifyContent: 'center',
   },
-  header: {
-    alignItems: "center",
-    marginBottom: 32,
+
+  // Brand
+  brand: {
+    alignItems: 'center',
+    marginBottom: spacing.xl,
   },
   logoBadge: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.surfaceContainer,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: `${colors.outlineVariant}4D`,
+    width: 72,
+    height: 72,
+    borderRadius: radius.full,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
   },
   logoImage: {
-    width: 28,
-    height: 29,
-    resizeMode: "contain",
+    width: 34,
+    height: 34,
+    resizeMode: 'contain',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: colors.text,
+  appName: {
+    ...typography.display,
+    color: colors.primary,
   },
-  subtitle: {
-    fontSize: 14,
-    color: colors.subtext,
-    marginTop: 4,
+  tagline: {
+    ...typography.bodySm,
+    color: colors.textSub,
+    marginTop: spacing.xs,
   },
+
+  // Card
   card: {
     backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 24,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
     borderWidth: 1,
-    borderColor: colors.cardBorder,
-    shadowColor: "#000",
-    shadowOpacity: 0.07,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 1,
+    borderColor: colors.border,
   },
-  signIn: {
-    marginTop: 8,
+  cardTitle: {
+    ...typography.title,
+    color: colors.text,
+    marginBottom: spacing.md,
   },
-  forgot: {
-    marginTop: 12,
-    alignItems: "center",
+
+  // Actions
+  submitBtn: {
+    marginTop: spacing.xs,
+  },
+  forgotRow: {
+    marginTop: spacing.md,
+    alignItems: 'center',
   },
   forgotText: {
-    color: colors.primaryContainer,
-    fontWeight: "600",
+    ...typography.bodySm,
+    color: colors.accent,
+    fontWeight: '600',
   },
   registerRow: {
-    marginTop: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
+    marginTop: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   registerText: {
-    color: colors.subtext,
-    fontSize: 13,
+    ...typography.bodySm,
+    color: colors.textSub,
   },
   registerLink: {
-    color: colors.primaryContainer,
-    fontWeight: "700",
-    fontSize: 13,
+    ...typography.bodySm,
+    color: colors.accent,
+    fontWeight: '700',
   },
   error: {
+    ...typography.bodySm,
     color: colors.error,
-    marginBottom: 8,
-    marginTop: -4,
+    marginBottom: spacing.sm,
+    marginTop: -spacing.sm,
   },
 });

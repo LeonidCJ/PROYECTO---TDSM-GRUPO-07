@@ -1,50 +1,51 @@
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useMemo, useState } from 'react';
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
-import { useAuth } from "@/src/core/auth/AuthContext";
-import * as authRepository from "@/src/features/auth/data/authRepository";
-import { Specialty } from "@/src/features/auth/domain/types";
-import { PrimaryButton } from "@/src/shared/components/PrimaryButton";
-import { TextField } from "@/src/shared/components/TextField";
-import { colors } from "@/src/shared/theme/colors";
+import { useAuth } from '@/src/core/auth/AuthContext';
+import * as authRepository from '@/src/features/auth/data/authRepository';
+import { Specialty } from '@/src/features/auth/domain/types';
+import { PrimaryButton } from '@/src/shared/components/PrimaryButton';
+import { TextField } from '@/src/shared/components/TextField';
+import { colors, radius, spacing, typography } from '@/src/shared/theme';
 
 const SPECIALTIES: Array<{ label: string; value: Specialty }> = [
-  { label: "Urología", value: "urology" },
-  { label: "Oncología", value: "oncology" },
-  { label: "Patología", value: "pathology" },
-  { label: "Radiología", value: "radiology" },
-  { label: "Otro", value: "other" },
+  { label: 'Urología',   value: 'urology' },
+  { label: 'Oncología',  value: 'oncology' },
+  { label: 'Patología',  value: 'pathology' },
+  { label: 'Radiología', value: 'radiology' },
+  { label: 'Otro',       value: 'other' },
 ];
 
 export default function RegisterScreen() {
   const router = useRouter();
   const { setAuthenticated, setUser } = useAuth();
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [phone, setPhone] = useState("");
-  const [hospital, setHospital] = useState("");
-  const [specialty, setSpecialty] = useState<Specialty | null>(null);
-  const [showSpecialty, setShowSpecialty] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const selectedSpecialtyLabel = useMemo(() => {
-    if (!specialty) return "";
-    return SPECIALTIES.find((item) => item.value === specialty)?.label ?? "";
-  }, [specialty]);
+  const [firstName,     setFirstName]     = useState('');
+  const [lastName,      setLastName]       = useState('');
+  const [email,         setEmail]          = useState('');
+  const [password,      setPassword]       = useState('');
+  const [showPassword,  setShowPassword]   = useState(false);
+  const [phone,         setPhone]          = useState('');
+  const [hospital,      setHospital]       = useState('');
+  const [specialty,     setSpecialty]      = useState<Specialty | null>(null);
+  const [showSpecialty, setShowSpecialty]  = useState(false);
+  const [isLoading,     setIsLoading]      = useState(false);
+  const [error,         setError]          = useState<string | null>(null);
+
+  const selectedLabel = useMemo(
+    () => SPECIALTIES.find((s) => s.value === specialty)?.label ?? '',
+    [specialty],
+  );
 
   const isDisabled = useMemo(
     () => !firstName || !lastName || !email || !password || isLoading,
@@ -55,30 +56,22 @@ export default function RegisterScreen() {
     setIsLoading(true);
     setError(null);
     try {
-      const trimmedEmail = email.trim();
-      const trimmedPassword = password;
-
+      const trimEmail = email.trim();
       await authRepository.register({
         first_name: firstName.trim(),
-        last_name: lastName.trim(),
-        email: trimmedEmail,
-        password: trimmedPassword,
-        phone: phone.trim() || undefined,
-        hospital: hospital.trim() || undefined,
-        specialty: specialty ?? undefined,
+        last_name:  lastName.trim(),
+        email:      trimEmail,
+        password,
+        phone:      phone.trim() || undefined,
+        hospital:   hospital.trim() || undefined,
+        specialty:  specialty ?? undefined,
       });
-
-      const profile = await authRepository.login({
-        email: trimmedEmail,
-        password: trimmedPassword,
-      });
+      const profile = await authRepository.login({ email: trimEmail, password });
       setAuthenticated(true);
       setUser(profile);
-      router.replace("/(tabs)" as any);
+      router.replace('/(tabs)' as any);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "No se pudo registrar";
-      setError(message);
+      setError(err instanceof Error ? err.message : 'No se pudo registrar');
     } finally {
       setIsLoading(false);
     }
@@ -87,15 +80,17 @@ export default function RegisterScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.select({ ios: "padding", android: undefined })}
+      behavior={Platform.select({ ios: 'padding', android: undefined })}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
+        {/* ── Header ──────────────────────────────────── */}
         <View style={styles.headerRow}>
           <TouchableOpacity
-            style={styles.backButton}
+            style={styles.backBtn}
             activeOpacity={0.7}
             onPress={() => router.back()}
           >
@@ -106,102 +101,94 @@ export default function RegisterScreen() {
         </View>
 
         <View style={styles.hero}>
-          <Text style={styles.heroTitle}>Únete a nuestra comunidad médica</Text>
-          <Text style={styles.heroSubtitle}>
-            Accede a diagnósticos avanzados con IA y gestión clínica eficiente.
+          <Text style={styles.heroTitle}>Únete a la comunidad médica</Text>
+          <Text style={styles.heroSub}>
+            Diagnósticos avanzados con IA y gestión clínica eficiente.
           </Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.label}>Nombre *</Text>
+        {/* ── Form ────────────────────────────────────── */}
+        <View style={styles.form}>
+          <Text style={styles.fieldLabel}>Nombre *</Text>
           <TextField
-            placeholder="Ingresa tu nombre"
+            placeholder="Tu nombre"
             value={firstName}
             onChangeText={setFirstName}
           />
 
-          <Text style={styles.label}>Apellido *</Text>
+          <Text style={styles.fieldLabel}>Apellido *</Text>
           <TextField
-            placeholder="Ingresa tu apellido"
+            placeholder="Tu apellido"
             value={lastName}
             onChangeText={setLastName}
           />
 
-          <Text style={styles.label}>Correo electrónico *</Text>
+          <Text style={styles.fieldLabel}>Correo electrónico *</Text>
           <TextField
-            placeholder="example@hospital.com"
+            placeholder="correo@hospital.com"
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
           />
 
-          <Text style={styles.label}>Contraseña *</Text>
+          <Text style={styles.fieldLabel}>Contraseña *</Text>
           <TextField
-            placeholder="Crea una contraseña segura"
+            placeholder="Mínimo 8 caracteres"
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
             rightIcon={
-              <TouchableOpacity
-                onPress={() => setShowPassword((prev) => !prev)}
-              >
+              <TouchableOpacity onPress={() => setShowPassword((p) => !p)}>
                 <Ionicons
-                  name={showPassword ? "eye-outline" : "eye-off-outline"}
+                  name={showPassword ? 'eye-outline' : 'eye-off-outline'}
                   size={18}
-                  color={colors.subtext}
+                  color={colors.textSub}
                 />
               </TouchableOpacity>
             }
           />
-          <Text style={styles.helper}>Mínimo 8 caracteres</Text>
 
-          <Text style={styles.label}>Número de teléfono (opcional)</Text>
+          <Text style={styles.fieldLabel}>Teléfono (opcional)</Text>
           <TextField
-            placeholder="+1 (555) 000-0000"
+            placeholder="+51 999 000 000"
             keyboardType="phone-pad"
             value={phone}
             onChangeText={setPhone}
           />
 
-          <Text style={styles.label}>Especialidad (opcional)</Text>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => setShowSpecialty((prev) => !prev)}
-          >
+          <Text style={styles.fieldLabel}>Especialidad (opcional)</Text>
+          <TouchableOpacity activeOpacity={0.8} onPress={() => setShowSpecialty((p) => !p)}>
             <View pointerEvents="none">
               <TextField
-                placeholder="Selecciona especialidad"
-                value={selectedSpecialtyLabel}
+                placeholder="Selecciona tu especialidad"
+                value={selectedLabel}
                 editable={false}
                 rightIcon={
                   <Ionicons
-                    name={showSpecialty ? "chevron-up" : "chevron-down"}
+                    name={showSpecialty ? 'chevron-up' : 'chevron-down'}
                     size={18}
-                    color={colors.subtext}
+                    color={colors.textSub}
                   />
                 }
               />
             </View>
           </TouchableOpacity>
-          {showSpecialty ? (
-            <View style={styles.selectMenu}>
+          {showSpecialty && (
+            <View style={styles.dropdown}>
               {SPECIALTIES.map((item) => (
                 <TouchableOpacity
                   key={item.value}
-                  style={styles.selectOption}
-                  onPress={() => {
-                    setSpecialty(item.value);
-                    setShowSpecialty(false);
-                  }}
+                  style={styles.dropdownItem}
+                  onPress={() => { setSpecialty(item.value); setShowSpecialty(false); }}
                 >
-                  <Text style={styles.selectOptionText}>{item.label}</Text>
+                  <Text style={styles.dropdownText}>{item.label}</Text>
                 </TouchableOpacity>
               ))}
             </View>
-          ) : null}
+          )}
 
-          <Text style={styles.label}>Hospital (opcional)</Text>
+          <Text style={styles.fieldLabel}>Hospital (opcional)</Text>
           <TextField
             placeholder="Nombre de la institución"
             value={hospital}
@@ -217,12 +204,10 @@ export default function RegisterScreen() {
             disabled={isDisabled}
           />
 
-          <View style={styles.footerRow}>
-            <Text style={styles.footerText}>¿Ya tienes una cuenta?</Text>
-            <TouchableOpacity
-              onPress={() => router.push("/(auth)/login" as any)}
-            >
-              <Text style={styles.footerLink}>Iniciar sesión</Text>
+          <View style={styles.loginRow}>
+            <Text style={styles.loginText}>¿Ya tienes cuenta? </Text>
+            <TouchableOpacity onPress={() => router.push('/(auth)/login' as any)}>
+              <Text style={styles.loginLink}>Iniciar sesión</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -237,110 +222,104 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 32,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
   },
+
+  // Header
   headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingTop: 16,
-    marginBottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: spacing.md,
+    marginBottom: spacing.lg,
   },
-  backButton: {
+  backBtn: {
     width: 36,
     height: 36,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "700",
+    ...typography.heading,
     color: colors.text,
   },
-  headerSpacer: {
-    width: 36,
-  },
+  headerSpacer: { width: 36 },
+
+  // Hero
   hero: {
-    alignItems: "center",
-    marginBottom: 24,
+    alignItems: 'center',
+    marginBottom: spacing.lg,
   },
   heroTitle: {
-    fontSize: 20,
-    fontWeight: "700",
+    ...typography.title,
     color: colors.text,
-    textAlign: "center",
-    marginBottom: 6,
+    textAlign: 'center',
+    marginBottom: spacing.xs,
   },
-  heroSubtitle: {
-    fontSize: 14,
+  heroSub: {
+    ...typography.bodySm,
+    color: colors.textSub,
+    textAlign: 'center',
     lineHeight: 20,
-    color: colors.subtext,
-    textAlign: "center",
   },
-  card: {
+
+  // Form
+  form: {
     backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 24,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
     borderWidth: 1,
-    borderColor: colors.cardBorder,
-    shadowColor: "#000",
-    shadowOpacity: 0.07,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 1,
+    borderColor: colors.border,
   },
-  label: {
-    fontSize: 13,
-    fontWeight: "600",
+  fieldLabel: {
+    ...typography.bodySm,
+    fontWeight: '600',
     color: colors.text,
-    marginBottom: 8,
+    marginBottom: spacing.xs,
   },
-  helper: {
-    fontSize: 12,
-    color: colors.subtext,
-    marginTop: -4,
-    marginBottom: 12,
-  },
-  error: {
-    color: colors.error,
-    marginTop: -4,
-    marginBottom: 12,
-    fontSize: 12,
-  },
-  selectMenu: {
-    marginTop: -4,
-    marginBottom: 12,
+
+  // Dropdown
+  dropdown: {
+    marginTop: -spacing.sm,
+    marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: colors.cardBorder,
-    borderRadius: 12,
+    borderColor: colors.border,
+    borderRadius: radius.md,
     backgroundColor: colors.surface,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
-  selectOption: {
+  dropdownItem: {
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceContainerHigh,
+    borderBottomColor: colors.background,
   },
-  selectOptionText: {
-    fontSize: 14,
+  dropdownText: {
+    ...typography.body,
     color: colors.text,
   },
-  footerRow: {
-    marginTop: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
+
+  // Footer
+  error: {
+    ...typography.bodySm,
+    color: colors.error,
+    marginBottom: spacing.sm,
+    marginTop: -spacing.sm,
   },
-  footerText: {
-    fontSize: 13,
-    color: colors.subtext,
+  loginRow: {
+    marginTop: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  footerLink: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: colors.primaryContainer,
+  loginText: {
+    ...typography.bodySm,
+    color: colors.textSub,
+  },
+  loginLink: {
+    ...typography.bodySm,
+    color: colors.accent,
+    fontWeight: '700',
   },
 });

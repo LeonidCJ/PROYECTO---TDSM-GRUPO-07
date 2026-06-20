@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 
 import { patientsRepository } from "../data/patientsRepository";
-import { CreatePatientRequest, Gender } from "../domain/types";
+import { CreatePatientRequest, Gender, Patient } from "../domain/types";
 
 type FormState = {
   patientCode: string;
@@ -10,7 +10,7 @@ type FormState = {
   gender: Gender;
   isSmoker: boolean;
   hasBladderCancer: boolean;
-  isImmunosuppressed: boolean;
+  hasHematuria: boolean;
 };
 
 const initialState: FormState = {
@@ -34,8 +34,8 @@ export function usePatientForm() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }, []);
 
-  const submit = useCallback(async (): Promise<boolean> => {
-    if (!canSubmit) return false;
+  const submit = useCallback(async (): Promise<Patient | null> => {
+    if (!canSubmit) return null;
     setIsLoading(true);
     setError(null);
     try {
@@ -46,14 +46,14 @@ export function usePatientForm() {
         gender: form.gender,
         is_smoker: form.isSmoker,
         has_previous_bladder_cancer: form.hasBladderCancer,
-        is_immunosuppressed: form.isImmunosuppressed,
+        has_hematuria: form.hasHematuria,
       };
-      await patientsRepository.create(payload);
+      const patient = await patientsRepository.create(payload);
       setForm(initialState);
-      return true;
+      return patient;
     } catch (e: any) {
       setError(e?.message ?? "Error al guardar el paciente");
-      return false;
+      return null;
     } finally {
       setIsLoading(false);
     }

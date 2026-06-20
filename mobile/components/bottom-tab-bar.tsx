@@ -1,58 +1,47 @@
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { colors } from "@/src/shared/theme/colors";
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { colors, radius, spacing, typography } from '@/src/shared/theme';
 
 const LABELS: Record<string, string> = {
-  index: "Home",
-  analysis: "Analysis",
-  history: "History",
-  settings: "Settings",
+  index:    'Inicio',
+  analysis: 'Análisis',
+  history:  'Historial',
+  settings: 'Ajustes',
 };
 
 const ICONS: Record<
   string,
-  "house.fill" | "chart.bar.fill" | "clock.fill" | "gearshape.fill"
+  'house.fill' | 'chart.bar.fill' | 'clock.fill' | 'gearshape.fill'
 > = {
-  index: "house.fill",
-  analysis: "chart.bar.fill",
-  history: "clock.fill",
-  settings: "gearshape.fill",
+  index:    'house.fill',
+  analysis: 'chart.bar.fill',
+  history:  'clock.fill',
+  settings: 'gearshape.fill',
 };
 
-export function BottomTabBar({
-  state,
-  descriptors,
-  navigation,
-}: BottomTabBarProps) {
+export function BottomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View
-      style={[styles.container, { paddingBottom: Math.max(8, insets.bottom) }]}
-    >
+    <View style={[styles.container, { paddingBottom: Math.max(spacing.sm, insets.bottom) }]}>
       <View style={styles.row}>
         {state.routes.map((route, index: number) => {
           const isFocused = state.index === index;
-          const label = LABELS[route.name] ?? route.name;
-          const iconName = ICONS[route.name as keyof typeof ICONS];
+          const label     = LABELS[route.name] ?? route.name;
+          const iconName  = ICONS[route.name as keyof typeof ICONS];
 
           const onPress = () => {
             const event = navigation.emit({
-              type: "tabPress",
+              type: 'tabPress',
               target: route.key,
               canPreventDefault: true,
             });
-
             if (!isFocused && !event.defaultPrevented) {
               navigation.navigate(route.name);
             }
-          };
-
-          const onLongPress = () => {
-            navigation.emit({ type: "tabLongPress", target: route.key });
           };
 
           return (
@@ -60,18 +49,16 @@ export function BottomTabBar({
               key={route.key}
               accessibilityRole="button"
               accessibilityState={isFocused ? { selected: true } : {}}
-              accessibilityLabel={
-                descriptors[route.key]?.options?.tabBarAccessibilityLabel
-              }
+              accessibilityLabel={descriptors[route.key]?.options?.tabBarAccessibilityLabel}
               onPress={onPress}
-              onLongPress={onLongPress}
+              onLongPress={() => navigation.emit({ type: 'tabLongPress', target: route.key })}
               activeOpacity={0.8}
               style={[styles.item, isFocused && styles.itemActive]}
             >
               <IconSymbol
-                size={24}
+                size={22}
                 name={iconName}
-                color={isFocused ? colors.primaryContainer : colors.outline}
+                color={isFocused ? colors.accent : colors.textDisabled}
               />
               <Text style={[styles.label, isFocused && styles.labelActive]}>
                 {label}
@@ -87,33 +74,33 @@ export function BottomTabBar({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.surface,
-    borderTopColor: colors.cardBorder,
     borderTopWidth: 1,
-    paddingTop: 8,
+    borderTopColor: colors.border,
+    paddingTop: spacing.sm,
   },
   row: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    paddingHorizontal: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingHorizontal: spacing.xs,
   },
   item: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    gap: 4,
   },
   itemActive: {
-    backgroundColor: colors.surfaceContainer,
+    backgroundColor: colors.accentLight,
   },
   label: {
-    marginTop: 4,
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.outline,
+    ...typography.caption,
+    fontWeight: '600',
+    color: colors.textDisabled,
   },
   labelActive: {
-    color: colors.primaryContainer,
+    color: colors.accent,
   },
 });

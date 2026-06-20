@@ -1,18 +1,15 @@
-import {
-    ActivityIndicator,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    ViewStyle,
-} from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
 
-import { colors } from "@/src/shared/theme/colors";
+import { colors, radius, typography } from '@/src/shared/theme';
+
+type Variant = 'primary' | 'outline' | 'danger';
 
 type Props = {
   title: string;
   onPress: () => void;
   loading?: boolean;
   disabled?: boolean;
+  variant?: Variant;
   style?: ViewStyle;
 };
 
@@ -21,45 +18,68 @@ export function PrimaryButton({
   onPress,
   loading,
   disabled,
+  variant = 'primary',
   style,
 }: Props) {
   const isDisabled = disabled || loading;
 
+  const buttonVariantStyle =
+    variant === 'primary' ? styles.primary
+    : variant === 'outline' ? styles.outline
+    : styles.danger;
+
+  const labelVariantStyle =
+    variant === 'primary' ? styles.primaryLabel
+    : variant === 'outline' ? styles.outlineLabel
+    : styles.dangerLabel;
+
+  const loaderColor =
+    variant === 'primary' ? colors.white
+    : variant === 'outline' ? colors.accent
+    : colors.error;
+
   return (
     <TouchableOpacity
-      style={[styles.button, isDisabled && styles.disabled, style]}
+      style={[styles.base, buttonVariantStyle, isDisabled && styles.disabled, style]}
       onPress={onPress}
       activeOpacity={0.8}
       disabled={isDisabled}
     >
       {loading ? (
-        <ActivityIndicator color={colors.white} />
+        <ActivityIndicator color={loaderColor} />
       ) : (
-        <Text style={styles.title}>{title}</Text>
+        <Text style={[styles.label, labelVariantStyle]}>{title}</Text>
       )}
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
-    backgroundColor: colors.primaryContainer,
-    borderRadius: 999,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+  base: {
+    borderRadius: radius.full,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primary: {
+    backgroundColor: colors.accent,
+  },
+  outline: {
+    borderWidth: 1.5,
+    borderColor: colors.accent,
+  },
+  danger: {
+    borderWidth: 1.5,
+    borderColor: colors.error,
   },
   disabled: {
-    opacity: 0.6,
+    opacity: 0.45,
   },
-  title: {
-    color: colors.white,
-    fontSize: 15,
-    fontWeight: "700",
+  label: {
+    ...typography.body,
+    fontWeight: '700',
   },
+  primaryLabel: { color: colors.white },
+  outlineLabel: { color: colors.accent },
+  dangerLabel:  { color: colors.error },
 });

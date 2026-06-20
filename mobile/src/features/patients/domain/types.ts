@@ -1,4 +1,4 @@
-export type Gender = "male" | "female" | "other";
+export type Gender = "male" | "female";
 
 export type Patient = {
   id: string;
@@ -8,7 +8,7 @@ export type Patient = {
   gender: Gender;
   is_smoker: boolean;
   has_previous_bladder_cancer: boolean;
-  is_immunosuppressed: boolean;
+  has_hematuria: boolean;
   created_at: string;
 };
 
@@ -19,5 +19,5 @@ export type CreatePatientRequest = {
   gender: Gender;
   is_smoker: boolean;
   has_previous_bladder_cancer: boolean;
-  is_immunosuppressed: boolean;
+  has_hematuria: boolean;
 };

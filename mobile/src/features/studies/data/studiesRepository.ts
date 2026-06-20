@@ -1,0 +1,32 @@
+import { getAccessToken } from '@/src/core/storage/secureStorage';
+import { IStudiesRepository } from '../domain/IStudiesRepository';
+import { CreateStudyRequest, Study, UploadImageResponse } from '../domain/types';
+import * as studiesApi from './studiesApi';
+
+async function getToken(): Promise<string> {
+  const token = await getAccessToken();
+  if (!token) throw new Error('No autenticado');
+  return token;
+}
+
+export const studiesRepository: IStudiesRepository = {
+  async create(data: CreateStudyRequest): Promise<Study> {
+    const token = await getToken();
+    return studiesApi.createStudy(token, data);
+  },
+
+  async getById(id: string): Promise<Study> {
+    const token = await getToken();
+    return studiesApi.getStudy(token, id);
+  },
+
+  async list(): Promise<Study[]> {
+    const token = await getToken();
+    return studiesApi.listStudies(token);
+  },
+
+  async uploadImage(studyId: string, imageUri: string): Promise<UploadImageResponse> {
+    const token = await getToken();
+    return studiesApi.uploadImage(token, studyId, imageUri);
+  },
+};
