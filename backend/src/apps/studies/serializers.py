@@ -63,6 +63,7 @@ class EndoscopicImageSerializer(serializers.ModelSerializer):
 class StudySerializer(serializers.ModelSerializer):
     endoscopic_images = EndoscopicImageSerializer(many=True, read_only=True)
     patient_name = serializers.CharField(source="patient.full_name", read_only=True)
+    study_date = serializers.DateTimeField(required=False)
 
     class Meta:
         model = Study
