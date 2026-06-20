@@ -22,20 +22,17 @@ class StudyViewSet(viewsets.ModelViewSet):
             .order_by("-created_at")
         )
 
-    @action(detail=True, methods=["post"], url_path="images")
-    def upload_image(self, request, pk=None):
+    @action(detail=True, methods=["get", "post"], url_path="images")
+    def images(self, request, pk=None):
         study = self.get_object()
-        serializer = EndoscopicImageSerializer(
-            data=request.data,
-            context={"study": study, "request": request},
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    @action(detail=True, methods=["get"], url_path="images")
-    def list_images(self, request, pk=None):
-        study = self.get_object()
+        if request.method == "POST":
+            serializer = EndoscopicImageSerializer(
+                data=request.data,
+                context={"study": study, "request": request},
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         images = EndoscopicImage.objects.filter(study=study).select_related("inference_result")
         serializer = EndoscopicImageSerializer(images, many=True)
         return Response(serializer.data)

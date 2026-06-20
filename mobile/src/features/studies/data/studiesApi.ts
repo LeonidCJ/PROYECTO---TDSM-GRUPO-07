@@ -12,7 +12,10 @@ export async function createStudy(token: string, data: CreateStudyRequest): Prom
     headers: { ...authHeaders(token), 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error('No se pudo crear el estudio');
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(JSON.stringify(body) || 'No se pudo crear el estudio');
+  }
   return res.json();
 }
 
