@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from .models import EndoscopicImage, InferenceResult, ModelConfig, Study
@@ -81,6 +82,7 @@ class StudySerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data["doctor"] = self.context["request"].user
+        validated_data.setdefault("study_date", timezone.now())
         return super().create(validated_data)
 
 
