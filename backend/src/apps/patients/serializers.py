@@ -20,7 +20,7 @@ class PatientSerializer(serializers.ModelSerializer):
             "gender",
             "is_smoker",
             "has_previous_bladder_cancer",
-            "is_immunosuppressed",
+            "has_hematuria",
             "created_at",
         )
         read_only_fields = ("id", "created_at")

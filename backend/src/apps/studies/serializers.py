@@ -28,27 +28,35 @@ class InferenceResultSerializer(serializers.ModelSerializer):
 
 
 class EndoscopicImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(write_only=True)
+    image_url = serializers.SerializerMethodField()
     inference_result = InferenceResultSerializer(read_only=True)
 
     class Meta:
         model = EndoscopicImage
         fields = (
             "id",
-            "file_path",
+            "image",
+            "image_url",
             "original_filename",
-            "file_size_mb",
-            "width_px",
-            "height_px",
             "image_quality",
             "source",
             "uploaded_at",
             "inference_result",
         )
-        read_only_fields = ("id", "uploaded_at", "inference_result")
+        read_only_fields = ("id", "uploaded_at", "inference_result", "image_url", "original_filename")
+
+    def get_image_url(self, obj):
+        return obj.image.url if obj.image else None
 
     def create(self, validated_data):
-        validated_data["study"] = self.context["study"]
-        return super().create(validated_data)
+        image_file = validated_data.pop('image')
+        validated_data['study'] = self.context['study']
+        validated_data['original_filename'] = image_file.name
+        validated_data['file_size_mb'] = round(image_file.size / (1024 * 1024), 4)
+        instance = EndoscopicImage(image=image_file, **validated_data)
+        instance.save()
+        return instance
 
 
 class StudySerializer(serializers.ModelSerializer):

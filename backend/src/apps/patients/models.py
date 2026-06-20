@@ -10,7 +10,6 @@ class Patient(BaseUUIDModel):
     class Gender(models.TextChoices):
         MALE = "male", "Male"
         FEMALE = "female", "Female"
-        OTHER = "other", "Other"
 
     doctor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -23,7 +22,7 @@ class Patient(BaseUUIDModel):
     gender = models.CharField(max_length=16, choices=Gender.choices)
     is_smoker = models.BooleanField(default=False)
     has_previous_bladder_cancer = models.BooleanField(default=False)
-    is_immunosuppressed = models.BooleanField(default=False)
+    has_hematuria = models.BooleanField(default=False)
 
     @property
     def age(self) -> int:
