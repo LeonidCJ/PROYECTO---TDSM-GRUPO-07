@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: cystoai-backend
+    runtime: docker
+    plan: free
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ".onrender.com,localhost"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cystoai-db
+          property: connectionString
+      - key: CLOUDINARY_CLOUD_NAME
+        value: dzbpzw3fp
+      - key: CLOUDINARY_API_KEY
+        value: "539279919588773"
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+databases:
+  - name: cystoai-db
+    databaseName: cystoai
+    plan: free
