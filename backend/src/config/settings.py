@@ -171,3 +171,14 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": False,
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+# Inference server (external ONNX model service)
+INFERENCE_SERVER_URL = env(
+    "INFERENCE_SERVER_URL",
+    default="https://servidor-inferencia.onrender.com",
+)
+# Generous timeout: the inference service runs on Render free tier and may
+# cold-start (~50s) after a period of inactivity.
+INFERENCE_TIMEOUT_SECONDS = env.int("INFERENCE_TIMEOUT_SECONDS", default=90)
+INFERENCE_MODEL_NAME = env("INFERENCE_MODEL_NAME", default="cystoai-onnx")
+INFERENCE_MODEL_VERSION = env("INFERENCE_MODEL_VERSION", default="1.0.0")
