@@ -22,16 +22,7 @@ export default function RootLayout() {
         <SafeAreaView style={styles.safeArea} edges={['top']}>
           <AuthProvider>
             <AuthGate>
-              <Stack>
-                <Stack.Screen name="(auth)"          options={{ headerShown: false }} />
-                <Stack.Screen name="(tabs)"          options={{ headerShown: false }} />
-                <Stack.Screen name="profile"         options={{ headerShown: false }} />
-                <Stack.Screen name="patient-form"    options={{ headerShown: false }} />
-                <Stack.Screen name="patients"        options={{ headerShown: false }} />
-                <Stack.Screen name="patient-select"  options={{ headerShown: false }} />
-                <Stack.Screen name="image-capture"   options={{ headerShown: false }} />
-                <Stack.Screen name="analysis-result" options={{ headerShown: false }} />
-              </Stack>
+              <Stack screenOptions={{ headerShown: false }} />
             </AuthGate>
           </AuthProvider>
         </SafeAreaView>
