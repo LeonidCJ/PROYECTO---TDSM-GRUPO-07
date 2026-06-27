@@ -28,7 +28,7 @@ const RISK_META: Record<RiskLevel, { label: string; color: string; bg: string }>
 
 export function AnalysisResultScreen({ patientId, patientName, imageUri, source }: Props) {
   const router = useRouter();
-  const { state, inference, referenceCode, errorMsg } = useRunAnalysis({
+  const { state, inference, studyId, referenceCode, errorMsg } = useRunAnalysis({
     patientId,
     imageUri,
     source,
@@ -36,6 +36,12 @@ export function AnalysisResultScreen({ patientId, patientName, imageUri, source 
 
   const handleNewAnalysis = () => router.replace('/patient-select' as any);
   const handleHome        = () => router.replace('/(tabs)' as any);
+  const handleGenerateReport = () => {
+    if (!studyId) return;
+    router.push(
+      `/report-detail?studyId=${encodeURIComponent(studyId)}&patientName=${encodeURIComponent(patientName)}` as any,
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -69,7 +75,7 @@ export function AnalysisResultScreen({ patientId, patientName, imageUri, source 
         {(state === 'result' || state === 'unavailable' || state === 'error') && (
           <View style={styles.actionGroup}>
             {state === 'result' && (
-              <TouchableOpacity style={styles.primaryAction} activeOpacity={0.85}>
+              <TouchableOpacity style={styles.primaryAction} onPress={handleGenerateReport} activeOpacity={0.85}>
                 <Ionicons name="document-text-outline" size={18} color={colors.white} />
                 <Text style={styles.primaryActionText}>Generar informe</Text>
               </TouchableOpacity>

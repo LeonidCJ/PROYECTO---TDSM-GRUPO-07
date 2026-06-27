@@ -19,6 +19,7 @@ type Params = {
 export function useRunAnalysis({ patientId, imageUri, source }: Params) {
   const [state, setState]           = useState<AnalysisState>('analyzing');
   const [inference, setInference]   = useState<InferenceResult | null>(null);
+  const [studyId, setStudyId]       = useState<string | null>(null);
   const [referenceCode, setRefCode] = useState<string | null>(null);
   const [errorMsg, setErrorMsg]     = useState<string | null>(null);
 
@@ -39,6 +40,7 @@ export function useRunAnalysis({ patientId, imageUri, source }: Params) {
       try {
         const study = await studiesRepository.create({ patient: patientId });
         if (cancelled) return;
+        setStudyId(study.id);
         setRefCode(study.reference_code);
 
         const image = await studiesRepository.uploadImage(study.id, imageUri, source);
@@ -65,5 +67,5 @@ export function useRunAnalysis({ patientId, imageUri, source }: Params) {
     return () => { cancelled = true; };
   }, [patientId, imageUri, source]);
 
-  return { state, inference, referenceCode, errorMsg };
+  return { state, inference, studyId, referenceCode, errorMsg };
 }
