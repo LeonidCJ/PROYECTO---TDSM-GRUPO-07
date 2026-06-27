@@ -50,10 +50,10 @@ export function ImageCaptureScreen({ patientId, patientName }: Props) {
       </View>
 
       {/* ── Image area ─────────────────────────────────── */}
-      <View style={styles.imageArea}>
+      <View style={[styles.imageArea, imageUri && styles.imageAreaFilled]}>
         {imageUri ? (
           <>
-            <Image source={{ uri: imageUri }} style={styles.preview} contentFit="cover" />
+            <Image source={{ uri: imageUri }} style={styles.preview} contentFit="contain" />
             <TouchableOpacity style={styles.clearBtn} onPress={clearImage}>
               <Ionicons name="close-circle" size={28} color={colors.white} />
             </TouchableOpacity>
@@ -163,6 +163,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  imageAreaFilled: { backgroundColor: '#0E1116', borderColor: '#0E1116' },
   preview: { flex: 1 },
   clearBtn: {
     position: 'absolute',
