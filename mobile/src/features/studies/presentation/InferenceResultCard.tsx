@@ -3,14 +3,13 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, radius, spacing, typography } from '@/src/shared/theme';
 import { InferenceResult } from '../domain/types';
-import { LABEL_META, riskMetaOf } from './resultMeta';
+import { confidencePct, LABEL_META, riskMetaOf } from './resultMeta';
 
 /** Presentational card that renders a 4-class inference result. */
 export function InferenceResultCard({ inference }: { inference: InferenceResult }) {
   const meta = LABEL_META[inference.primary_label];
   const risk = riskMetaOf(inference.risk_level);
-  const confidence = inference.confidence_breakdown?.[inference.primary_label] ?? 0;
-  const pct = Math.round(confidence * 100);
+  const pct = confidencePct(inference.confidence_breakdown, inference.primary_label);
 
   return (
     <View style={styles.container}>

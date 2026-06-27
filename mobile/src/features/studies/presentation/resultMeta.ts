@@ -17,3 +17,12 @@ export const RISK_META: Record<RiskLevel, { label: string; color: string; bg: st
 export function riskMetaOf(risk?: RiskLevel) {
   return (risk && RISK_META[risk]) || RISK_META.low;
 }
+
+/** Confianza (0..1) de la clase predicha, en porcentaje entero 0..100. */
+export function confidencePct(
+  breakdown: Record<string, number> | undefined,
+  label: PrimaryLabel,
+): number {
+  const c = breakdown?.[label] ?? 0;
+  return Math.round(c * 100);
+}

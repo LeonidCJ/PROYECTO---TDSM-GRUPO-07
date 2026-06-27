@@ -6,6 +6,17 @@ import { Report } from '../domain/types';
 export type ReportState = 'generating' | 'ready' | 'error';
 
 /**
+ * Decide el estado a partir del informe devuelto por el backend.
+ * Pura: testeable sin React.
+ */
+export function classifyReport(report: Report): { state: ReportState; errorMsg: string | null } {
+  if (report.status === 'error' || !report.pdf_url) {
+    return { state: 'error', errorMsg: 'No se pudo generar el PDF del informe' };
+  }
+  return { state: 'ready', errorMsg: null };
+}
+
+/**
  * Generates (or fetches the existing) report for a study. The backend create
  * endpoint is idempotent, so re-entering this screen returns the same report.
  */
@@ -20,14 +31,10 @@ export function useReport(studyId: string) {
     setError(null);
     try {
       const result = await reportsRepository.create({ study: studyId });
-      if (result.status === 'error' || !result.pdf_url) {
-        setReport(result);
-        setError('No se pudo generar el PDF del informe');
-        setState('error');
-        return;
-      }
       setReport(result);
-      setState('ready');
+      const outcome = classifyReport(result);
+      setError(outcome.errorMsg);
+      setState(outcome.state);
     } catch (e: any) {
       setError(e?.message ?? 'No se pudo generar el informe');
       setState('error');

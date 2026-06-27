@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { studiesRepository } from '../data/studiesRepository';
-import { ImageSource, InferenceResult } from '../domain/types';
+import { EndoscopicImage, ImageSource, InferenceResult } from '../domain/types';
 
 export type AnalysisState = 'analyzing' | 'result' | 'unavailable' | 'error';
 
@@ -10,6 +10,27 @@ type Params = {
   imageUri: string;
   source?: ImageSource;
 };
+
+/** Decide el estado a partir de la imagen subida. Pura: testeable sin React. */
+export function classifyUpload(image: EndoscopicImage): {
+  state: AnalysisState;
+  inference: InferenceResult | null;
+} {
+  return image.inference_result
+    ? { state: 'result', inference: image.inference_result }
+    : { state: 'unavailable', inference: null };
+}
+
+/** Mapea un error a estado. MODEL_UNAVAILABLE no es un fallo: es "no disponible". */
+export function classifyAnalysisError(e: any): {
+  state: AnalysisState;
+  errorMsg: string | null;
+} {
+  if (e?.message === 'MODEL_UNAVAILABLE') {
+    return { state: 'unavailable', errorMsg: null };
+  }
+  return { state: 'error', errorMsg: e?.message ?? 'Error al procesar la imagen' };
+}
 
 /**
  * Owns the full analysis process for the result screen:
@@ -46,21 +67,14 @@ export function useRunAnalysis({ patientId, imageUri, source }: Params) {
         const image = await studiesRepository.uploadImage(study.id, imageUri, source);
         if (cancelled) return;
 
-        if (image.inference_result) {
-          setInference(image.inference_result);
-          setState('result');
-        } else {
-          // Image saved but the inference service could not produce a result.
-          setState('unavailable');
-        }
+        const outcome = classifyUpload(image);
+        setInference(outcome.inference);
+        setState(outcome.state);
       } catch (e: any) {
         if (cancelled) return;
-        if (e?.message === 'MODEL_UNAVAILABLE') {
-          setState('unavailable');
-        } else {
-          setErrorMsg(e?.message ?? 'Error al procesar la imagen');
-          setState('error');
-        }
+        const outcome = classifyAnalysisError(e);
+        setErrorMsg(outcome.errorMsg);
+        setState(outcome.state);
       }
     };
     run();

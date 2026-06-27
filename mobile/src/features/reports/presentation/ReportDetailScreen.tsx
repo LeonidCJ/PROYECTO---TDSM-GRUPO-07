@@ -4,6 +4,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { colors, radius, spacing, typography } from '@/src/shared/theme';
+import { formatDateTime } from '@/src/shared/utils/format';
 import { PrimaryLabel, RiskLevel } from '../../studies/domain/types';
 import { Report } from '../domain/types';
 import { useReport } from './useReport';
@@ -25,13 +26,6 @@ const RISK_META: Record<RiskLevel, { label: string; color: string }> = {
   medium: { label: 'Riesgo medio', color: colors.warning },
   low:    { label: 'Riesgo bajo',  color: colors.success },
 };
-
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return '—';
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
 
 export function ReportDetailScreen({ studyId, patientName }: Props) {
   const router = useRouter();
@@ -118,7 +112,7 @@ function ReadyState({ report, onDownload }: { report: Report; onDownload: () => 
           </View>
         </View>
         <Row label="Institución" value={report.institution_name} />
-        <Row label="Fecha" value={formatDate(report.generated_at)} />
+        <Row label="Fecha" value={formatDateTime(report.generated_at)} />
       </View>
 
       {/* Result summary */}

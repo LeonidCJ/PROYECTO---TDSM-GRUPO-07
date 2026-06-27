@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 
 import { colors, radius, spacing, typography } from '@/src/shared/theme';
+import { formatDateTime } from '@/src/shared/utils/format';
 import { PrimaryLabel, Study } from '../domain/types';
 import { riskMetaOf } from './resultMeta';
 import { useStudiesList } from './useStudiesList';
@@ -26,14 +27,6 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: 'NTL', label: 'NTL' },
   { key: 'NST', label: 'NST' },
 ];
-
-function formatDateTime(iso?: string): string {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return '—';
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
 
 export function StudyHistoryScreen() {
   const router = useRouter();
