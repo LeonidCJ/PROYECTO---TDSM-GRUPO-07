@@ -15,15 +15,18 @@ type Props = {
 export function ImageCaptureScreen({ patientId, patientName }: Props) {
   const router  = useRouter();
 
-  const { imageUri, pickFromCamera, pickFromGallery, analyze, clearImage, isLoading, error } =
-    useImageCapture(patientId);
+  const { imageUri, source, pickFromCamera, pickFromGallery, clearImage, error } =
+    useImageCapture();
 
-  const handleAnalyze = async () => {
-    const res = await analyze();
-    if (!res) return;
-    router.push(
-      `/analysis-result?studyId=${res.studyId}&patientName=${encodeURIComponent(patientName)}` as any,
-    );
+  const handleAnalyze = () => {
+    if (!imageUri) return;
+    const params = [
+      `patientId=${encodeURIComponent(patientId)}`,
+      `patientName=${encodeURIComponent(patientName)}`,
+      `imageUri=${encodeURIComponent(imageUri)}`,
+    ];
+    if (source) params.push(`source=${source}`);
+    router.push(`/analysis-result?${params.join('&')}` as any);
   };
 
   return (
@@ -97,22 +100,12 @@ export function ImageCaptureScreen({ patientId, patientName }: Props) {
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.analyzeBtn, isLoading && styles.analyzeBtnDisabled]}
+              style={styles.analyzeBtn}
               onPress={handleAnalyze}
-              disabled={isLoading}
               activeOpacity={0.85}
             >
-              {isLoading ? (
-                <>
-                  <Ionicons name="hourglass-outline" size={18} color={colors.white} />
-                  <Text style={styles.analyzeBtnText}>Analizando...</Text>
-                </>
-              ) : (
-                <>
-                  <Ionicons name="scan-outline" size={18} color={colors.white} />
-                  <Text style={styles.analyzeBtnText}>Analizar imagen</Text>
-                </>
-              )}
+              <Ionicons name="scan-outline" size={18} color={colors.white} />
+              <Text style={styles.analyzeBtnText}>Analizar imagen</Text>
             </TouchableOpacity>
           </View>
         )}

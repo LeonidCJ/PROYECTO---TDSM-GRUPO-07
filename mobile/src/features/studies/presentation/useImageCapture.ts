@@ -1,13 +1,12 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 
-import { studiesRepository } from '../data/studiesRepository';
-import { UploadImageResponse } from '../domain/types';
+import { ImageSource } from '../domain/types';
 
-export function useImageCapture(patientId: string) {
-  const [imageUri, setImageUri]   = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError]         = useState<string | null>(null);
+export function useImageCapture() {
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [source, setSource]     = useState<ImageSource | null>(null);
+  const [error, setError]       = useState<string | null>(null);
 
   const pickFromCamera = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -21,6 +20,7 @@ export function useImageCapture(patientId: string) {
     });
     if (!result.canceled) {
       setImageUri(result.assets[0].uri);
+      setSource('camera');
       setError(null);
     }
   };
@@ -37,31 +37,15 @@ export function useImageCapture(patientId: string) {
     });
     if (!result.canceled) {
       setImageUri(result.assets[0].uri);
+      setSource('gallery');
       setError(null);
     }
   };
 
-  const analyze = async (): Promise<{ studyId: string; result: UploadImageResponse } | null> => {
-    if (!imageUri || !patientId) return null;
-    setIsLoading(true);
-    setError(null);
-    try {
-      const study = await studiesRepository.create({ patient: patientId });
-      const uploadResult = await studiesRepository.uploadImage(study.id, imageUri);
-      return { studyId: study.id, result: uploadResult };
-    } catch (e: any) {
-      if (e?.message === 'MODEL_UNAVAILABLE') {
-        setError('MODEL_UNAVAILABLE');
-      } else {
-        setError(e?.message ?? 'Error al procesar la imagen');
-      }
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
+  const clearImage = () => {
+    setImageUri(null);
+    setSource(null);
   };
 
-  const clearImage = () => setImageUri(null);
-
-  return { imageUri, pickFromCamera, pickFromGallery, analyze, clearImage, isLoading, error };
+  return { imageUri, source, pickFromCamera, pickFromGallery, clearImage, error };
 }

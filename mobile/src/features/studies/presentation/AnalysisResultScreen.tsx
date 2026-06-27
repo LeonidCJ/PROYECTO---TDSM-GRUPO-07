@@ -1,51 +1,38 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-
 import { colors, radius, spacing, typography } from '@/src/shared/theme';
-import { studiesRepository } from '../data/studiesRepository';
-import { InferenceResult, Study } from '../domain/types';
+import { ImageSource, InferenceResult, PrimaryLabel, RiskLevel } from '../domain/types';
+import { useRunAnalysis } from './useRunAnalysis';
 
 type Props = {
-  studyId: string;
+  patientId: string;
   patientName: string;
+  imageUri: string;
+  source?: ImageSource;
 };
 
-type ScreenState = 'loading' | 'unavailable' | 'result' | 'error';
+const LABEL_META: Record<PrimaryLabel, { name: string; full: string }> = {
+  HGC: { name: 'Cáncer de alto grado', full: 'High Grade Cancer' },
+  LGC: { name: 'Cáncer de bajo grado', full: 'Low Grade Cancer' },
+  NTL: { name: 'Lesión no tumoral', full: 'Non-Tumor Lesion' },
+  NST: { name: 'Tejido normal', full: 'Normal Surrounding Tissue' },
+};
 
-export function AnalysisResultScreen({ studyId, patientName }: Props) {
-  const router  = useRouter();
+const RISK_META: Record<RiskLevel, { label: string; color: string; bg: string }> = {
+  high:   { label: 'Riesgo alto',  color: colors.error,   bg: colors.errorLight },
+  medium: { label: 'Riesgo medio', color: colors.warning, bg: colors.warningLight },
+  low:    { label: 'Riesgo bajo',  color: colors.success, bg: colors.successLight },
+};
 
-
-  const [state,     setState]     = useState<ScreenState>('loading');
-  const [study,     setStudy]     = useState<Study | null>(null);
-  const [inference, setInference] = useState<InferenceResult | null>(null);
-  const [errMsg,    setErrMsg]    = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      try {
-        const data = await studiesRepository.getById(studyId);
-        if (cancelled) return;
-        setStudy(data);
-        if (data.inference_result) {
-          setInference(data.inference_result);
-          setState('result');
-        } else {
-          setState('unavailable');
-        }
-      } catch (e: any) {
-        if (cancelled) return;
-        setErrMsg(e?.message ?? 'Error al obtener el resultado');
-        setState('error');
-      }
-    };
-    load();
-    return () => { cancelled = true; };
-  }, [studyId]);
+export function AnalysisResultScreen({ patientId, patientName, imageUri, source }: Props) {
+  const router = useRouter();
+  const { state, inference, referenceCode, errorMsg } = useRunAnalysis({
+    patientId,
+    imageUri,
+    source,
+  });
 
   const handleNewAnalysis = () => router.replace('/patient-select' as any);
   const handleHome        = () => router.replace('/(tabs)' as any);
@@ -64,27 +51,22 @@ export function AnalysisResultScreen({ studyId, patientName }: Props) {
         <View style={styles.headerBtn} />
       </View>
 
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* ── Patient info ───────────────────────────────── */}
         <View style={styles.patientRow}>
           <Ionicons name="person-circle-outline" size={16} color={colors.accent} />
           <Text style={styles.patientName}>{patientName}</Text>
-          {study?.reference_code ? (
-            <Text style={styles.refCode}>#{study.reference_code}</Text>
-          ) : null}
+          {referenceCode ? <Text style={styles.refCode}>#{referenceCode}</Text> : null}
         </View>
 
         {/* ── States ─────────────────────────────────────── */}
-        {state === 'loading' && <LoadingState />}
+        {state === 'analyzing' && <LoadingState />}
         {state === 'unavailable' && <UnavailableState />}
-        {state === 'error' && <ErrorState message={errMsg} />}
+        {state === 'error' && <ErrorState message={errorMsg} />}
         {state === 'result' && inference && <ResultState inference={inference} />}
 
         {/* ── Actions ────────────────────────────────────── */}
-        {(state === 'result' || state === 'unavailable') && (
+        {(state === 'result' || state === 'unavailable' || state === 'error') && (
           <View style={styles.actionGroup}>
             {state === 'result' && (
               <TouchableOpacity style={styles.primaryAction} activeOpacity={0.85}>
@@ -123,8 +105,10 @@ function LoadingState() {
   return (
     <View style={states.wrap}>
       <ActivityIndicator size="large" color={colors.accent} />
-      <Text style={states.title}>Procesando imagen...</Text>
-      <Text style={states.sub}>El modelo de IA está analizando la muestra</Text>
+      <Text style={states.title}>Analizando imagen...</Text>
+      <Text style={states.sub}>
+        El modelo de IA está procesando la muestra.{'\n'}Esto puede tardar unos segundos.
+      </Text>
     </View>
   );
 }
@@ -151,46 +135,56 @@ function ErrorState({ message }: { message: string | null }) {
         <Ionicons name="alert-circle-outline" size={40} color={colors.error} />
       </View>
       <Text style={states.title}>Ocurrió un error</Text>
-      <Text style={states.sub}>{message ?? 'No se pudo obtener el resultado'}</Text>
+      <Text style={states.sub}>{message ?? 'No se pudo completar el análisis'}</Text>
     </View>
   );
 }
 
 function ResultState({ inference }: { inference: InferenceResult }) {
-  const isCancer    = inference.has_cancer;
-  const pct         = Math.round(inference.confidence * 100);
-  const resultColor = isCancer ? colors.error : colors.success;
-  const resultBg    = isCancer ? colors.errorLight : colors.successLight;
+  const meta = LABEL_META[inference.primary_label];
+  const risk = RISK_META[inference.risk_level] ?? RISK_META.low;
+  const confidence = inference.confidence_breakdown?.[inference.primary_label] ?? 0;
+  const pct = Math.round(confidence * 100);
 
   return (
     <View style={result.container}>
       {/* Main result card */}
-      <View style={[result.card, { borderColor: resultColor + '33', backgroundColor: resultBg }]}>
-        <View style={[result.iconWrap, { backgroundColor: resultColor + '20' }]}>
+      <View style={[result.card, { borderColor: risk.color + '33', backgroundColor: risk.bg }]}>
+        <View style={[result.iconWrap, { backgroundColor: risk.color + '20' }]}>
           <Ionicons
-            name={isCancer ? 'warning-outline' : 'checkmark-circle-outline'}
+            name={inference.is_malignant ? 'warning-outline' : 'checkmark-circle-outline'}
             size={44}
-            color={resultColor}
+            color={risk.color}
           />
         </View>
-        <Text style={[result.label, { color: resultColor }]}>
-          {isCancer ? 'CÁNCER DETECTADO' : 'RESULTADO NORMAL'}
-        </Text>
-        <Text style={result.sublabel}>
-          {isCancer
-            ? 'Se recomienda evaluación especializada inmediata'
-            : 'No se detectaron indicadores de malignidad'}
-        </Text>
+        <Text style={[result.label, { color: risk.color }]}>{meta.name}</Text>
+        <View style={result.badgeRow}>
+          <View style={[result.codeBadge, { borderColor: risk.color + '55' }]}>
+            <Text style={[result.codeBadgeText, { color: risk.color }]}>{inference.primary_label}</Text>
+          </View>
+          <View style={[result.riskBadge, { backgroundColor: risk.color + '20' }]}>
+            <Text style={[result.riskBadgeText, { color: risk.color }]}>{risk.label}</Text>
+          </View>
+        </View>
+        <Text style={result.sublabel}>{meta.full}</Text>
       </View>
 
       {/* Confidence */}
       <View style={result.confidenceCard}>
         <Text style={result.confidenceLabel}>CONFIANZA DEL MODELO</Text>
         <View style={result.confidenceBar}>
-          <View style={[result.confidenceFill, { width: `${pct}%` as any, backgroundColor: resultColor }]} />
+          <View style={[result.confidenceFill, { width: `${pct}%` as any, backgroundColor: risk.color }]} />
         </View>
-        <Text style={[result.confidencePct, { color: resultColor }]}>{pct}%</Text>
+        <Text style={[result.confidencePct, { color: risk.color }]}>{pct}%</Text>
       </View>
+
+      {/* Recommended action */}
+      {inference.recommended_action ? (
+        <View style={result.recommendation}>
+          <Ionicons name="medkit-outline" size={16} color={colors.accent} />
+          <Text style={result.recommendationText}>{inference.recommended_action}</Text>
+        </View>
+      ) : null}
 
       {/* Disclaimer */}
       <View style={result.disclaimer}>
@@ -300,6 +294,16 @@ const result = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   label: { ...typography.title, fontWeight: '800', textAlign: 'center' },
+  badgeRow: { flexDirection: 'row', gap: spacing.xs, alignItems: 'center' },
+  codeBadge: {
+    borderWidth: 1.5,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+  },
+  codeBadgeText: { ...typography.caption, fontWeight: '800', letterSpacing: 0.5 },
+  riskBadge: { borderRadius: radius.full, paddingHorizontal: spacing.sm, paddingVertical: 3 },
+  riskBadgeText: { ...typography.caption, fontWeight: '700' },
   sublabel: { ...typography.bodySm, color: colors.textSub, textAlign: 'center' },
   confidenceCard: {
     backgroundColor: colors.surface,
@@ -318,6 +322,16 @@ const result = StyleSheet.create({
   },
   confidenceFill: { height: '100%', borderRadius: radius.full },
   confidencePct: { ...typography.title, fontWeight: '800', textAlign: 'right' },
+  recommendation: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    backgroundColor: colors.accentLight,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.accent + '22',
+  },
+  recommendationText: { ...typography.bodySm, color: colors.text, flex: 1, lineHeight: 19 },
   disclaimer: {
     flexDirection: 'row',
     gap: spacing.xs,

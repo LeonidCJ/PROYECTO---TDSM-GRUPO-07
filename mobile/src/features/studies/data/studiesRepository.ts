@@ -1,6 +1,6 @@
 import { getAccessToken } from '@/src/core/storage/secureStorage';
 import { IStudiesRepository } from '../domain/IStudiesRepository';
-import { CreateStudyRequest, Study, UploadImageResponse } from '../domain/types';
+import { CreateStudyRequest, EndoscopicImage, ImageSource, Study } from '../domain/types';
 import * as studiesApi from './studiesApi';
 
 async function getToken(): Promise<string> {
@@ -25,8 +25,8 @@ export const studiesRepository: IStudiesRepository = {
     return studiesApi.listStudies(token);
   },
 
-  async uploadImage(studyId: string, imageUri: string): Promise<UploadImageResponse> {
+  async uploadImage(studyId: string, imageUri: string, source?: ImageSource): Promise<EndoscopicImage> {
     const token = await getToken();
-    return studiesApi.uploadImage(token, studyId, imageUri);
+    return studiesApi.uploadImage(token, studyId, imageUri, source);
   },
 };

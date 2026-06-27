@@ -1,4 +1,4 @@
-import { CreateStudyRequest, Study, UploadImageResponse } from '../domain/types';
+import { CreateStudyRequest, EndoscopicImage, ImageSource, Study } from '../domain/types';
 
 const BASE = `${process.env.EXPO_PUBLIC_API_URL}/api/v1`;
 
@@ -39,13 +39,15 @@ export async function uploadImage(
   token: string,
   studyId: string,
   imageUri: string,
-): Promise<UploadImageResponse> {
+  source?: ImageSource,
+): Promise<EndoscopicImage> {
   const formData = new FormData();
   formData.append('image', {
     uri: imageUri,
     type: 'image/jpeg',
     name: 'endoscopy.jpg',
   } as any);
+  if (source) formData.append('source', source);
 
   const res = await fetch(`${BASE}/studies/${studyId}/images/`, {
     method: 'POST',
@@ -58,7 +60,8 @@ export async function uploadImage(
   }
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body?.detail ?? 'Error al procesar la imagen');
+    const detail = typeof body?.detail === 'string' ? body.detail : null;
+    throw new Error(detail ?? 'Error al procesar la imagen');
   }
   return res.json();
 }
