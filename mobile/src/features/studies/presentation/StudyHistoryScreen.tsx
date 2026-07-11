@@ -31,10 +31,18 @@ const FILTERS: { key: Filter; label: string }[] = [
 export function StudyHistoryScreen() {
   const router = useRouter();
   const { studies, isLoading, error, reload } = useStudiesList();
-  const [query, setQuery]   = useState('');
-  const [filter, setFilter] = useState<Filter>('ALL');
+  const [query, setQuery]         = useState('');
+  const [filter, setFilter]       = useState<Filter>('ALL');
+  const [refreshing, setRefreshing] = useState(false);
 
+  // Recarga silenciosa al enfocar el tab (sin mostrar el spinner de refresco).
   useFocusEffect(useCallback(() => { reload(); }, [reload]));
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await reload();
+    setRefreshing(false);
+  }, [reload]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -116,7 +124,7 @@ export function StudyHistoryScreen() {
           style={styles.flex}
           contentContainerStyle={styles.list}
           keyboardShouldPersistTaps="handled"
-          refreshControl={<RefreshControl refreshing={isLoading} onRefresh={reload} tintColor={colors.accent} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />}
           ListEmptyComponent={
             <View style={styles.center}>
               {error ? (
@@ -147,7 +155,6 @@ export function StudyHistoryScreen() {
 function StudyCard({ study, onPress }: { study: Study; onPress: () => void }) {
   const inf = study.inference_result;
   const risk = inf ? riskMetaOf(inf.risk_level) : null;
-  const accent = risk?.color ?? colors.border;
   const confidence = inf?.confidence_breakdown?.[inf.primary_label];
   const pct = confidence != null ? Math.round(confidence * 100) : null;
 
@@ -166,7 +173,6 @@ function StudyCard({ study, onPress }: { study: Study; onPress: () => void }) {
       accessibilityLabel={cardLabel}
       accessibilityHint="Abre el detalle del estudio"
     >
-      <View style={[styles.accentBar, { backgroundColor: accent }]} />
       <View style={styles.cardBody}>
         <Text style={styles.patientName} numberOfLines={1}>{study.patient_name ?? 'Paciente'}</Text>
         <Text style={styles.meta}>#{study.reference_code} · {formatDateTime(study.study_date)}</Text>
@@ -239,10 +245,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
-    overflow: 'hidden',
     paddingRight: spacing.md,
   },
-  accentBar: { width: 4, alignSelf: 'stretch' },
   cardBody: { flex: 1, padding: spacing.md, gap: 3 },
   patientName: { ...typography.body, fontWeight: '700', color: colors.text },
   meta: { ...typography.caption, color: colors.textSub },

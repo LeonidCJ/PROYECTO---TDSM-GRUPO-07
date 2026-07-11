@@ -164,12 +164,6 @@ function ReadyState({ report, onDownload }: { report: Report; onDownload: () => 
         <Text style={styles.primaryActionText}>Descargar / Ver PDF</Text>
       </TouchableOpacity>
 
-      <View style={card.disclaimer}>
-        <Ionicons name="information-circle-outline" size={14} color={colors.textDisabled} />
-        <Text style={card.disclaimerText}>
-          Informe de apoyo diagnóstico generado con IA. No reemplaza el juicio clínico del especialista.
-        </Text>
-      </View>
     </View>
   );
 }
@@ -276,10 +270,4 @@ const card = StyleSheet.create({
   riskBadgeText: { ...typography.caption, fontWeight: '700' },
   confidence: { ...typography.caption, color: colors.textSub },
   recommendation: { ...typography.bodySm, color: colors.text, marginTop: spacing.sm, lineHeight: 19 },
-  disclaimer: {
-    flexDirection: 'row', gap: spacing.xs,
-    backgroundColor: colors.surface, borderRadius: radius.md, padding: spacing.sm,
-    borderWidth: 1, borderColor: colors.border,
-  },
-  disclaimerText: { ...typography.caption, color: colors.textDisabled, flex: 1, lineHeight: 17 },
 });

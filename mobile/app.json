@@ -12,6 +12,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.cystoai.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -38,11 +39,24 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "CystoAI usa la cámara para capturar imágenes endoscópicas del estudio.",
+          "photosPermission": "CystoAI accede a tus fotos para seleccionar imágenes endoscópicas del estudio."
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "19286200-1024-41ad-afd5-3e8f70fcba2a"
+      }
     }
   }
 }

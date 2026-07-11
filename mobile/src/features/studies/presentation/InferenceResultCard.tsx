@@ -62,14 +62,6 @@ export function InferenceResultCard({ inference }: { inference: InferenceResult 
           <Text style={styles.recommendationText}>{inference.recommended_action}</Text>
         </View>
       ) : null}
-
-      {/* Disclaimer */}
-      <View style={styles.disclaimer}>
-        <Ionicons name="information-circle-outline" size={14} color={colors.textDisabled} />
-        <Text style={styles.disclaimerText}>
-          Este resultado es una herramienta de apoyo diagnóstico y no reemplaza el juicio clínico del especialista.
-        </Text>
-      </View>
     </View>
   );
 }
@@ -130,14 +122,4 @@ const styles = StyleSheet.create({
     borderColor: colors.accent + '22',
   },
   recommendationText: { ...typography.bodySm, color: colors.text, flex: 1, lineHeight: 19 },
-  disclaimer: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  disclaimerText: { ...typography.caption, color: colors.textDisabled, flex: 1, lineHeight: 17 },
 });
