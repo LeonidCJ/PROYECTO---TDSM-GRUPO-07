@@ -72,9 +72,14 @@ export function StudyHistoryScreen() {
           onChangeText={setQuery}
           autoCapitalize="none"
           returnKeyType="search"
+          accessibilityLabel="Buscar estudios por nombre o código"
         />
         {query ? (
-          <TouchableOpacity onPress={() => setQuery('')}>
+          <TouchableOpacity
+            onPress={() => setQuery('')}
+            accessibilityRole="button"
+            accessibilityLabel="Limpiar búsqueda"
+          >
             <Ionicons name="close-circle" size={18} color={colors.textDisabled} />
           </TouchableOpacity>
         ) : null}
@@ -90,6 +95,9 @@ export function StudyHistoryScreen() {
               onPress={() => setFilter(f.key)}
               activeOpacity={0.8}
               style={[styles.filterChip, active && styles.filterChipActive]}
+              accessibilityRole="button"
+              accessibilityLabel={`Filtrar por ${f.label}`}
+              accessibilityState={{ selected: active }}
             >
               <Text style={[styles.filterText, active && styles.filterTextActive]}>{f.label}</Text>
             </TouchableOpacity>
@@ -143,8 +151,21 @@ function StudyCard({ study, onPress }: { study: Study; onPress: () => void }) {
   const confidence = inf?.confidence_breakdown?.[inf.primary_label];
   const pct = confidence != null ? Math.round(confidence * 100) : null;
 
+  const resultText = inf
+    ? `resultado ${inf.primary_label}${pct != null ? `, ${pct} por ciento de confianza` : ''}`
+    : 'sin análisis';
+  const cardLabel = `Paciente ${study.patient_name ?? 'sin nombre'}, estudio ${study.reference_code}, ${resultText}.`;
+
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={onPress}
+      activeOpacity={0.8}
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={cardLabel}
+      accessibilityHint="Abre el detalle del estudio"
+    >
       <View style={[styles.accentBar, { backgroundColor: accent }]} />
       <View style={styles.cardBody}>
         <Text style={styles.patientName} numberOfLines={1}>{study.patient_name ?? 'Paciente'}</Text>

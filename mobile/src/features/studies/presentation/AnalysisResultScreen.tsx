@@ -35,7 +35,12 @@ export function AnalysisResultScreen({ patientId, patientName, imageUri, source 
     <View style={styles.container}>
       {/* ── Header ─────────────────────────────────────── */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleHome} style={styles.headerBtn}>
+        <TouchableOpacity
+          onPress={handleHome}
+          style={styles.headerBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Ir al inicio"
+        >
           <Ionicons name="home-outline" size={22} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
@@ -63,7 +68,13 @@ export function AnalysisResultScreen({ patientId, patientName, imageUri, source 
         {(state === 'result' || state === 'unavailable' || state === 'error') && (
           <View style={styles.actionGroup}>
             {state === 'result' && (
-              <TouchableOpacity style={styles.primaryAction} onPress={handleGenerateReport} activeOpacity={0.85}>
+              <TouchableOpacity
+                style={styles.primaryAction}
+                onPress={handleGenerateReport}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel="Generar informe"
+              >
                 <Ionicons name="document-text-outline" size={18} color={colors.white} />
                 <Text style={styles.primaryActionText}>Generar informe</Text>
               </TouchableOpacity>
@@ -72,11 +83,19 @@ export function AnalysisResultScreen({ patientId, patientName, imageUri, source 
               style={styles.secondaryAction}
               onPress={handleNewAnalysis}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Nuevo análisis"
             >
               <Ionicons name="add-circle-outline" size={18} color={colors.accent} />
               <Text style={styles.secondaryActionText}>Nuevo análisis</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.ghostAction} onPress={handleHome} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={styles.ghostAction}
+              onPress={handleHome}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Volver al inicio"
+            >
               <Text style={styles.ghostActionText}>Volver al inicio</Text>
             </TouchableOpacity>
           </View>

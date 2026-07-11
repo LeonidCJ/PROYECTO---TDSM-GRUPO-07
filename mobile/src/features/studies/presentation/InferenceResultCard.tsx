@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
+import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radius, spacing, typography } from '@/src/shared/theme';
 import { InferenceResult } from '../domain/types';
@@ -11,10 +12,21 @@ export function InferenceResultCard({ inference }: { inference: InferenceResult 
   const risk = riskMetaOf(inference.risk_level);
   const pct = confidencePct(inference.confidence_breakdown, inference.primary_label);
 
+  const summary = `Resultado: ${meta.name} (${inference.primary_label}). ${risk.label}. Confianza del modelo ${pct} por ciento.`;
+
+  // Anuncia el resultado a los lectores de pantalla cuando aparece.
+  useEffect(() => {
+    AccessibilityInfo.announceForAccessibility(summary);
+  }, [summary]);
+
   return (
     <View style={styles.container}>
       {/* Main result card */}
-      <View style={[styles.card, { borderColor: risk.color + '33', backgroundColor: risk.bg }]}>
+      <View
+        style={[styles.card, { borderColor: risk.color + '33', backgroundColor: risk.bg }]}
+        accessible
+        accessibilityLabel={summary}
+      >
         <View style={[styles.iconWrap, { backgroundColor: risk.color + '20' }]}>
           <Ionicons
             name={inference.is_malignant ? 'warning-outline' : 'checkmark-circle-outline'}

@@ -33,7 +33,12 @@ export function ImageCaptureScreen({ patientId, patientName }: Props) {
     <View style={styles.container}>
       {/* ── Header ─────────────────────────────────────── */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.headerBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Volver"
+        >
           <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
@@ -53,8 +58,18 @@ export function ImageCaptureScreen({ patientId, patientName }: Props) {
       <View style={[styles.imageArea, imageUri && styles.imageAreaFilled]}>
         {imageUri ? (
           <>
-            <Image source={{ uri: imageUri }} style={styles.preview} contentFit="contain" />
-            <TouchableOpacity style={styles.clearBtn} onPress={clearImage}>
+            <Image
+              source={{ uri: imageUri }}
+              style={styles.preview}
+              contentFit="contain"
+              accessibilityLabel="Imagen endoscópica seleccionada"
+            />
+            <TouchableOpacity
+              style={styles.clearBtn}
+              onPress={clearImage}
+              accessibilityRole="button"
+              accessibilityLabel="Quitar imagen"
+            >
               <Ionicons name="close-circle" size={28} color={colors.white} />
             </TouchableOpacity>
           </>
@@ -82,19 +97,37 @@ export function ImageCaptureScreen({ patientId, patientName }: Props) {
 
         {!imageUri ? (
           <View style={styles.pickRow}>
-            <TouchableOpacity style={styles.pickBtn} onPress={pickFromCamera} activeOpacity={0.85}>
+            <TouchableOpacity
+              style={styles.pickBtn}
+              onPress={pickFromCamera}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Tomar foto con la cámara"
+            >
               <Ionicons name="camera-outline" size={24} color={colors.accent} />
               <Text style={styles.pickBtnText}>Cámara</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.pickBtn} onPress={pickFromGallery} activeOpacity={0.85}>
+            <TouchableOpacity
+              style={styles.pickBtn}
+              onPress={pickFromGallery}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Seleccionar imagen de la galería"
+            >
               <Ionicons name="images-outline" size={24} color={colors.accent} />
               <Text style={styles.pickBtnText}>Galería</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.analyzeRow}>
-            <TouchableOpacity style={styles.changeBtn} onPress={clearImage} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={styles.changeBtn}
+              onPress={clearImage}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Cambiar imagen"
+            >
               <Ionicons name="refresh-outline" size={18} color={colors.textSub} />
               <Text style={styles.changeBtnText}>Cambiar</Text>
             </TouchableOpacity>
@@ -103,6 +136,9 @@ export function ImageCaptureScreen({ patientId, patientName }: Props) {
               style={styles.analyzeBtn}
               onPress={handleAnalyze}
               activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Analizar imagen"
+              accessibilityHint="Envía la imagen para su análisis con inteligencia artificial"
             >
               <Ionicons name="scan-outline" size={18} color={colors.white} />
               <Text style={styles.analyzeBtnText}>Analizar imagen</Text>

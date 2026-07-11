@@ -26,7 +26,12 @@ export function StudyDetailScreen({ studyId, patientName }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.headerBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Volver"
+        >
           <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
@@ -55,7 +60,13 @@ export function StudyDetailScreen({ studyId, patientName }: Props) {
         ) : inference ? (
           <>
             <InferenceResultCard inference={inference} />
-            <TouchableOpacity style={styles.primaryAction} onPress={openReport} activeOpacity={0.85}>
+            <TouchableOpacity
+              style={styles.primaryAction}
+              onPress={openReport}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Ver o generar informe"
+            >
               <Ionicons name="document-text-outline" size={18} color={colors.white} />
               <Text style={styles.primaryActionText}>Ver / Generar informe</Text>
             </TouchableOpacity>

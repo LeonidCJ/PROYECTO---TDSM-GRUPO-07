@@ -39,7 +39,12 @@ export function ReportDetailScreen({ studyId, patientName }: Props) {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.headerBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Volver"
+        >
           <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
@@ -82,7 +87,13 @@ function ErrorState({ message, onRetry }: { message: string | null; onRetry: () 
       </View>
       <Text style={states.title}>No se pudo generar el informe</Text>
       <Text style={states.sub}>{message ?? 'Ocurrió un error'}</Text>
-      <TouchableOpacity style={styles.primaryAction} onPress={onRetry} activeOpacity={0.85}>
+      <TouchableOpacity
+        style={styles.primaryAction}
+        onPress={onRetry}
+        activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel="Reintentar la generación del informe"
+      >
         <Ionicons name="refresh-outline" size={18} color={colors.white} />
         <Text style={styles.primaryActionText}>Reintentar</Text>
       </TouchableOpacity>
@@ -142,7 +153,13 @@ function ReadyState({ report, onDownload }: { report: Report; onDownload: () => 
       ) : null}
 
       {/* Download */}
-      <TouchableOpacity style={styles.primaryAction} onPress={onDownload} activeOpacity={0.85}>
+      <TouchableOpacity
+        style={styles.primaryAction}
+        onPress={onDownload}
+        activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel="Descargar o ver el PDF del informe"
+      >
         <Ionicons name="download-outline" size={18} color={colors.white} />
         <Text style={styles.primaryActionText}>Descargar / Ver PDF</Text>
       </TouchableOpacity>
