@@ -9,17 +9,17 @@ const LABELS: Record<string, string> = {
   index:    'Inicio',
   analysis: 'Análisis',
   history:  'Historial',
-  settings: 'Ajustes',
+  profile:  'Perfil',
 };
 
 const ICONS: Record<
   string,
-  'house.fill' | 'chart.bar.fill' | 'clock.fill' | 'gearshape.fill'
+  'house.fill' | 'chart.bar.fill' | 'clock.fill' | 'person.crop.circle.fill'
 > = {
   index:    'house.fill',
   analysis: 'chart.bar.fill',
   history:  'clock.fill',
-  settings: 'gearshape.fill',
+  profile:  'person.crop.circle.fill',
 };
 
 export function BottomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {

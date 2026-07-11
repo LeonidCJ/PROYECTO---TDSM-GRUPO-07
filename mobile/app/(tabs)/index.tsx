@@ -14,11 +14,6 @@ export default function HomeScreen() {
   const lastName  = user?.last_name?.trim()  ?? '';
   const fullName  = [firstName, lastName].filter(Boolean).join(' ');
   const displayName = fullName ? `Dr. ${fullName}` : 'Dr.';
-  const initials = [firstName, lastName]
-    .filter(Boolean)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase() || 'DR';
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
@@ -49,17 +44,6 @@ export default function HomeScreen() {
           <Text style={styles.brandName}>CystoAI</Text>
         </View>
 
-        <TouchableOpacity
-          style={styles.profileChip}
-          activeOpacity={0.85}
-          onPress={() => router.push('/profile' as any)}
-        >
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
-          <Text style={styles.profileLabel}>{displayName}</Text>
-          <Ionicons name="chevron-forward" size={13} color={colors.textSub} />
-        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -102,12 +86,18 @@ export default function HomeScreen() {
             <Text style={styles.gridSub}>Gestionar registros</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.gridCard} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.gridCard}
+            activeOpacity={0.8}
+            onPress={() => router.push('/reports' as any)}
+            accessibilityRole="button"
+            accessibilityLabel="Informes"
+          >
             <View style={styles.gridIcon}>
               <Ionicons name="document-text-outline" size={22} color={colors.accent} />
             </View>
             <Text style={styles.gridTitle}>Informes</Text>
-            <Text style={styles.gridSub}>Generar y exportar</Text>
+            <Text style={styles.gridSub}>Ver y exportar</Text>
           </TouchableOpacity>
         </View>
 

@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 
@@ -8,7 +7,6 @@ import { colors, radius, spacing, typography } from '@/src/shared/theme';
 
 export function ProfileScreen() {
   const { user, logout } = useAuth();
-  const router  = useRouter();
 
 
   const firstName = user?.first_name?.trim() ?? '';
@@ -20,13 +18,9 @@ export function ProfileScreen() {
     <View style={styles.container}>
       {/* ── Header ─────────────────────────────────────── */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
-          <Ionicons name="arrow-back" size={22} color={colors.text} />
-        </TouchableOpacity>
+        <View style={styles.headerBtn} />
         <Text style={styles.headerTitle}>Perfil</Text>
-        <TouchableOpacity style={styles.headerBtn}>
-          <Ionicons name="settings-outline" size={22} color={colors.accent} />
-        </TouchableOpacity>
+        <View style={styles.headerBtn} />
       </View>
 
       <ScrollView
