@@ -20,7 +20,7 @@ const initialState: FormState = {
   gender: "male",
   isSmoker: false,
   hasBladderCancer: false,
-  isImmunosuppressed: false,
+  hasHematuria: false,
 };
 
 export function usePatientForm() {

@@ -96,11 +96,11 @@ function PatientCard({ patient }: { patient: Patient }) {
           {patient.computed_age != null ? `  ·  ${patient.computed_age} años` : ''}
           {`  ·  ${GENDER_LABEL[patient.gender] ?? patient.gender}`}
         </Text>
-        {(patient.is_smoker || patient.has_previous_bladder_cancer || patient.is_immunosuppressed) && (
+        {(patient.is_smoker || patient.has_previous_bladder_cancer || patient.has_hematuria) && (
           <View style={styles.chips}>
             {patient.is_smoker               && <RiskChip label="Fumador" />}
             {patient.has_previous_bladder_cancer && <RiskChip label="Ca. vejiga" />}
-            {patient.is_immunosuppressed     && <RiskChip label="Inmunosup." />}
+            {patient.has_hematuria           && <RiskChip label="Hematuria" />}
           </View>
         )}
       </View>
