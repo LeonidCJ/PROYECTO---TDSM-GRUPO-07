@@ -110,7 +110,8 @@ def test_metrics_endpoint(api, admin_user, study):
     resp = api.get(METRICS_URL)
     assert resp.status_code == 200
     assert resp.data["users"]["total"] >= 1
-    assert resp.data["patients"] >= 1
+    assert resp.data["patients"]["active"] >= 1
+    assert resp.data["patients"]["total"] >= 1
     assert resp.data["studies"]["total"] >= 1
 
 

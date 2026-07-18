@@ -93,7 +93,11 @@ class MetricsView(APIView):
                 "active": User.objects.filter(is_active=True).count(),
                 "by_role": users_by_role,
             },
-            "patients": Patient.objects.count(),
+            "patients": {
+                "total": Patient.objects.count(),
+                "active": Patient.objects.filter(is_archived=False).count(),
+                "archived": Patient.objects.filter(is_archived=True).count(),
+            },
             "studies": {
                 "total": Study.objects.count(),
                 "by_status": studies_by_status,

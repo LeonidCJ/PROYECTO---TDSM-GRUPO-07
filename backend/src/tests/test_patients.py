@@ -55,6 +55,25 @@ def test_delete_archives_instead_of_removing(api, patient):
     assert all(p["id"] != str(patient.id) for p in listed.data)
 
 
+def test_restore_unarchives_patient(api, patient):
+    api.delete(f"{PATIENTS_URL}{patient.id}/")  # archive
+    resp = api.post(f"{PATIENTS_URL}{patient.id}/restore/")
+    assert resp.status_code == 200
+    patient.refresh_from_db()
+    assert patient.is_archived is False
+    # ...and it is listed again
+    listed = api.get(PATIENTS_URL)
+    assert any(p["id"] == str(patient.id) for p in listed.data)
+
+
+def test_archived_filter_lists_only_archived(api, patient):
+    api.delete(f"{PATIENTS_URL}{patient.id}/")  # archive
+    active = api.get(PATIENTS_URL)
+    assert all(p["id"] != str(patient.id) for p in active.data)
+    archived = api.get(f"{PATIENTS_URL}?archived=true")
+    assert any(p["id"] == str(patient.id) for p in archived.data)
+
+
 def test_search_filters_patients(api, user):
     Patient.objects.create(doctor=user, patient_code="PAC-A", full_name="Ana Gomez", gender="female")
     Patient.objects.create(doctor=user, patient_code="PAC-B", full_name="Beto Ruiz", gender="male")
