@@ -22,6 +22,7 @@ import {
   formatFollowupDate,
   isoDatePlusMonths,
 } from "./followupMeta";
+import { assessRisk, RiskAssessment } from "./riskStratification";
 import { usePatient } from "./usePatient";
 
 const GENDER_LABEL: Record<string, string> = { male: "Masculino", female: "Femenino" };
@@ -107,6 +108,15 @@ export function PatientDetailScreen({ patientId, patientName }: Props) {
       ) : patient ? (
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <PatientCard patient={patient} />
+          <RiskCard
+            risk={assessRisk({
+              latestLabel: studies.find((s) => s.inference_result)?.inference_result?.primary_label ?? null,
+              hasPreviousBladderCancer: patient.has_previous_bladder_cancer,
+              isSmoker: patient.is_smoker,
+              hasHematuria: patient.has_hematuria,
+            })}
+            onSchedule={(months) => setFollowup(isoDatePlusMonths(months)).catch(showErr)}
+          />
           <FollowupCard patient={patient} onSchedule={scheduleFollowup} />
 
           <TouchableOpacity style={styles.primaryAction} onPress={startAnalysis} activeOpacity={0.85} accessibilityRole="button" accessibilityLabel="Nuevo análisis para este paciente">
@@ -196,6 +206,48 @@ function FollowupCard({ patient, onSchedule }: { patient: Patient; onSchedule: (
   );
 }
 
+function RiskCard({
+  risk,
+  onSchedule,
+}: {
+  risk: RiskAssessment;
+  onSchedule: (months: 3 | 6 | 12) => void;
+}) {
+  return (
+    <View style={styles.card}>
+      <View style={styles.riskHead}>
+        <Text style={styles.riskCardTitle}>Riesgo estimado</Text>
+        <View style={[styles.riskBadge, { backgroundColor: risk.color + "20" }]}>
+          <Text style={[styles.riskBadgeText, { color: risk.color }]}>{risk.label}</Text>
+        </View>
+      </View>
+      <View style={styles.reasons}>
+        {risk.reasons.map((r, i) => (
+          <View key={i} style={styles.reasonRow}>
+            <View style={[styles.reasonDot, { backgroundColor: risk.color }]} />
+            <Text style={styles.reasonText}>{r}</Text>
+          </View>
+        ))}
+      </View>
+      <View style={styles.recRow}>
+        <Text style={styles.recText}>Control sugerido: en {risk.recommendedMonths} meses</Text>
+        <TouchableOpacity
+          style={styles.recBtn}
+          onPress={() => onSchedule(risk.recommendedMonths)}
+          accessibilityRole="button"
+          accessibilityLabel={`Programar control en ${risk.recommendedMonths} meses`}
+        >
+          <Text style={styles.recBtnText}>Programar</Text>
+        </TouchableOpacity>
+      </View>
+      <Text style={styles.riskDisclaimer}>
+        Orientativo, según factores clínicos y el último resultado de IA. No reemplaza la
+        estadificación histopatológica; revisar criterio médico.
+      </Text>
+    </View>
+  );
+}
+
 function StudyRow({ study, first, onPress }: { study: Study; first: boolean; onPress: () => void }) {
   const inf = study.inference_result ?? null;
   const risk = inf ? riskMetaOf(inf.risk_level) : null;
@@ -269,6 +321,26 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: colors.accent,
   },
   followBtnText: { ...typography.caption, fontWeight: "700", color: colors.accent },
+
+  riskHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  riskCardTitle: { ...typography.body, fontWeight: "700", color: colors.text },
+  riskBadge: { borderRadius: radius.full, paddingHorizontal: spacing.sm, paddingVertical: 3 },
+  riskBadgeText: { ...typography.caption, fontWeight: "800" },
+  reasons: { gap: 4 },
+  reasonRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  reasonDot: { width: 6, height: 6, borderRadius: radius.full },
+  reasonText: { ...typography.caption, color: colors.textSub },
+  recRow: {
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    borderTopWidth: 1, borderTopColor: colors.border, paddingTop: spacing.sm,
+  },
+  recText: { ...typography.bodySm, fontWeight: "600", color: colors.text, flex: 1 },
+  recBtn: {
+    paddingHorizontal: spacing.md, paddingVertical: 8, borderRadius: radius.full,
+    backgroundColor: colors.accent,
+  },
+  recBtnText: { ...typography.caption, fontWeight: "700", color: colors.white },
+  riskDisclaimer: { ...typography.caption, color: colors.textDisabled, lineHeight: 16 },
 
   primaryAction: {
     flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.sm,
