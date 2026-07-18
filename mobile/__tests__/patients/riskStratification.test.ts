@@ -1,6 +1,11 @@
 import { assessRisk } from '@/src/features/patients/presentation/riskStratification';
 
-const base = { hasPreviousBladderCancer: false, isSmoker: false, hasHematuria: false };
+const base = {
+  hasPreviousBladderCancer: false,
+  smokingStatus: 'never' as const,
+  hematuriaType: 'none' as const,
+  occupationalExposure: false,
+};
 
 describe('assessRisk', () => {
   it('HGC (alto grado) => riesgo alto, control a 3 meses', () => {
@@ -27,20 +32,30 @@ describe('assessRisk', () => {
   });
 
   it('el antecedente de cáncer sube un nivel', () => {
-    // LGC (intermedio) + antecedente => alto
     expect(assessRisk({ ...base, latestLabel: 'LGC', hasPreviousBladderCancer: true }).level).toBe('high');
-    // NTL (bajo) + antecedente => intermedio
     expect(assessRisk({ ...base, latestLabel: 'NTL', hasPreviousBladderCancer: true }).level).toBe('intermediate');
   });
 
-  it('lista los factores como razones', () => {
-    const r = assessRisk({ latestLabel: 'HGC', hasPreviousBladderCancer: true, isSmoker: true, hasHematuria: true });
+  it('distingue fumador activo de exfumador en las razones', () => {
+    expect(assessRisk({ ...base, latestLabel: 'NTL', smokingStatus: 'current' }).reasons).toContain('Fumador activo');
+    expect(assessRisk({ ...base, latestLabel: 'NTL', smokingStatus: 'former' }).reasons).toContain('Exfumador');
+  });
+
+  it('lista todos los factores como razones', () => {
+    const r = assessRisk({
+      latestLabel: 'HGC',
+      hasPreviousBladderCancer: true,
+      smokingStatus: 'current',
+      hematuriaType: 'macroscopic',
+      occupationalExposure: true,
+    });
     expect(r.reasons).toEqual(
       expect.arrayContaining([
         'Resultado de alto grado (HGC)',
         'Antecedente de cáncer de vejiga',
-        'Fumador',
-        'Hematuria',
+        'Fumador activo',
+        'Hematuria macroscópica',
+        'Exposición ocupacional',
       ]),
     );
   });

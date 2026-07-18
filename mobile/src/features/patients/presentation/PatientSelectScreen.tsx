@@ -17,6 +17,7 @@ import {
 import { colors, radius, spacing, typography } from '@/src/shared/theme';
 import { Gender, Patient } from '../domain/types';
 import { patientsRepository } from '../data/patientsRepository';
+import { SegmentedField } from './SegmentedField';
 import { usePatients } from './usePatients';
 import { usePatientForm } from './usePatientForm';
 
@@ -250,9 +251,28 @@ export function PatientSelectScreen() {
             <View style={styles.divider} />
             <Text style={styles.riskTitle}>FACTORES DE RIESGO</Text>
 
-            <RiskToggle label="Fumador" value={form.isSmoker} onChange={(v) => update('isSmoker', v)} />
+            <SegmentedField
+              label="Tabaquismo"
+              value={form.smokingStatus}
+              onChange={(v) => update('smokingStatus', v)}
+              options={[
+                { value: 'never', label: 'Nunca' },
+                { value: 'former', label: 'Exfumador' },
+                { value: 'current', label: 'Fumador' },
+              ]}
+            />
             <RiskToggle label="Cáncer de vejiga previo" value={form.hasBladderCancer} onChange={(v) => update('hasBladderCancer', v)} />
-            <RiskToggle label="Hematuria" value={form.hasHematuria} onChange={(v) => update('hasHematuria', v)} />
+            <SegmentedField
+              label="Hematuria"
+              value={form.hematuriaType}
+              onChange={(v) => update('hematuriaType', v)}
+              options={[
+                { value: 'none', label: 'No' },
+                { value: 'macroscopic', label: 'Macro' },
+                { value: 'microscopic', label: 'Micro' },
+              ]}
+            />
+            <RiskToggle label="Exposición ocupacional" value={form.occupationalExposure} onChange={(v) => update('occupationalExposure', v)} />
           </View>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}

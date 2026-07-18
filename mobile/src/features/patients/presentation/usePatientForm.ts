@@ -1,16 +1,23 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { patientsRepository } from "../data/patientsRepository";
-import { CreatePatientRequest, Gender, Patient } from "../domain/types";
+import {
+  CreatePatientRequest,
+  Gender,
+  HematuriaType,
+  Patient,
+  SmokingStatus,
+} from "../domain/types";
 
 type FormState = {
   patientCode: string;
   fullName: string;
   age: number;
   gender: Gender;
-  isSmoker: boolean;
+  smokingStatus: SmokingStatus;
   hasBladderCancer: boolean;
-  hasHematuria: boolean;
+  hematuriaType: HematuriaType;
+  occupationalExposure: boolean;
 };
 
 const initialState: FormState = {
@@ -18,9 +25,10 @@ const initialState: FormState = {
   fullName: "",
   age: 0,
   gender: "male",
-  isSmoker: false,
+  smokingStatus: "never",
   hasBladderCancer: false,
-  hasHematuria: false,
+  hematuriaType: "none",
+  occupationalExposure: false,
 };
 
 export function usePatientForm(patientId?: string) {
@@ -44,9 +52,10 @@ export function usePatientForm(patientId?: string) {
           fullName: p.full_name,
           age: p.computed_age ?? 0,
           gender: p.gender,
-          isSmoker: p.is_smoker,
+          smokingStatus: p.smoking_status,
           hasBladderCancer: p.has_previous_bladder_cancer,
-          hasHematuria: p.has_hematuria,
+          hematuriaType: p.hematuria_type,
+          occupationalExposure: p.occupational_exposure,
         });
       } catch (e: any) {
         if (active) setError(e?.message ?? "No se pudo cargar el paciente");
@@ -75,9 +84,10 @@ export function usePatientForm(patientId?: string) {
         full_name: form.fullName.trim(),
         age: form.age > 0 ? form.age : undefined,
         gender: form.gender,
-        is_smoker: form.isSmoker,
+        smoking_status: form.smokingStatus,
         has_previous_bladder_cancer: form.hasBladderCancer,
-        has_hematuria: form.hasHematuria,
+        hematuria_type: form.hematuriaType,
+        occupational_exposure: form.occupationalExposure,
       };
       const patient = isEdit
         ? await patientsRepository.update(patientId!, payload)

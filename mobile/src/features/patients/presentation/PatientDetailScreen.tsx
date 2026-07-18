@@ -112,8 +112,9 @@ export function PatientDetailScreen({ patientId, patientName }: Props) {
             risk={assessRisk({
               latestLabel: studies.find((s) => s.inference_result)?.inference_result?.primary_label ?? null,
               hasPreviousBladderCancer: patient.has_previous_bladder_cancer,
-              isSmoker: patient.is_smoker,
-              hasHematuria: patient.has_hematuria,
+              smokingStatus: patient.smoking_status,
+              hematuriaType: patient.hematuria_type,
+              occupationalExposure: patient.occupational_exposure,
             })}
             onSchedule={(months) => setFollowup(isoDatePlusMonths(months)).catch(showErr)}
           />
@@ -172,13 +173,14 @@ function PatientCard({ patient }: { patient: Patient }) {
           </Text>
         </View>
       </View>
-      {(patient.is_smoker || patient.has_previous_bladder_cancer || patient.has_hematuria) && (
-        <View style={styles.chips}>
-          {patient.is_smoker && <RiskChip label="Fumador" />}
-          {patient.has_previous_bladder_cancer && <RiskChip label="Ca. vejiga previo" />}
-          {patient.has_hematuria && <RiskChip label="Hematuria" />}
-        </View>
-      )}
+      <View style={styles.chips}>
+        {patient.smoking_status === "current" && <RiskChip label="Fumador" />}
+        {patient.smoking_status === "former" && <RiskChip label="Exfumador" />}
+        {patient.has_previous_bladder_cancer && <RiskChip label="Ca. vejiga previo" />}
+        {patient.hematuria_type === "macroscopic" && <RiskChip label="Hematuria macro." />}
+        {patient.hematuria_type === "microscopic" && <RiskChip label="Hematuria micro." />}
+        {patient.occupational_exposure && <RiskChip label="Exp. ocupacional" />}
+      </View>
     </View>
   );
 }

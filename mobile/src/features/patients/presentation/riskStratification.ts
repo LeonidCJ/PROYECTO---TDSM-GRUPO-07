@@ -1,5 +1,6 @@
 import { colors } from "@/src/shared/theme";
 import { PrimaryLabel } from "@/src/features/studies/domain/types";
+import { HematuriaType, SmokingStatus } from "../domain/types";
 
 export type RiskLevel = "low" | "intermediate" | "high";
 
@@ -16,8 +17,9 @@ export type RiskAssessment = {
 export type RiskInput = {
   latestLabel: PrimaryLabel | null;
   hasPreviousBladderCancer: boolean;
-  isSmoker: boolean;
-  hasHematuria: boolean;
+  smokingStatus: SmokingStatus;
+  hematuriaType: HematuriaType;
+  occupationalExposure: boolean;
 };
 
 const ORDER: RiskLevel[] = ["low", "intermediate", "high"];
@@ -71,8 +73,11 @@ export function assessRisk(input: RiskInput): RiskAssessment {
     level = bumpUp(level);
     reasons.push("Antecedente de cáncer de vejiga");
   }
-  if (input.isSmoker) reasons.push("Fumador");
-  if (input.hasHematuria) reasons.push("Hematuria");
+  if (input.smokingStatus === "current") reasons.push("Fumador activo");
+  else if (input.smokingStatus === "former") reasons.push("Exfumador");
+  if (input.hematuriaType === "macroscopic") reasons.push("Hematuria macroscópica");
+  else if (input.hematuriaType === "microscopic") reasons.push("Hematuria microscópica");
+  if (input.occupationalExposure) reasons.push("Exposición ocupacional");
 
   return {
     level,

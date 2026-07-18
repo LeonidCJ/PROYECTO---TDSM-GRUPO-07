@@ -151,11 +151,15 @@ function PatientCard({ patient, onPress }: { patient: Patient; onPress: () => vo
           {patient.computed_age != null ? `  ·  ${patient.computed_age} años` : ''}
           {`  ·  ${GENDER_LABEL[patient.gender] ?? patient.gender}`}
         </Text>
-        {(patient.is_smoker || patient.has_previous_bladder_cancer || patient.has_hematuria || showFollow) && (
+        {(patient.smoking_status !== 'never' ||
+          patient.has_previous_bladder_cancer ||
+          patient.hematuria_type !== 'none' ||
+          showFollow) && (
           <View style={styles.chips}>
-            {patient.is_smoker               && <RiskChip label="Fumador" />}
+            {patient.smoking_status === 'current' && <RiskChip label="Fumador" />}
+            {patient.smoking_status === 'former' && <RiskChip label="Exfumador" />}
             {patient.has_previous_bladder_cancer && <RiskChip label="Ca. vejiga" />}
-            {patient.has_hematuria           && <RiskChip label="Hematuria" />}
+            {patient.hematuria_type !== 'none' && <RiskChip label="Hematuria" />}
             {showFollow && (
               <View style={[styles.followChip, { backgroundColor: followMeta.color + '20' }]}>
                 <Text style={[styles.followChipText, { color: followMeta.color }]}>{followMeta.label}</Text>
