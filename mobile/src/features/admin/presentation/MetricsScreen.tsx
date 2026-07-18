@@ -59,7 +59,8 @@ export function MetricsScreen() {
             <StatCard
               icon="folder-open"
               label="Pacientes"
-              value={metrics.patients}
+              value={metrics.patients.active}
+              hint={metrics.patients.archived > 0 ? `${metrics.patients.archived} archivados` : "activos"}
             />
             <StatCard
               icon="documents"

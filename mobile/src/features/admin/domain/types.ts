@@ -40,7 +40,11 @@ export type Metrics = {
     active: number;
     by_role: Record<string, number>;
   };
-  patients: number;
+  patients: {
+    total: number;
+    active: number;
+    archived: number;
+  };
   studies: {
     total: number;
     by_status: Record<string, number>;

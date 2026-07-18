@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   StyleSheet,
   Text,
@@ -24,7 +25,8 @@ const GENDER_LABEL: Record<string, string> = {
 
 export function PatientsScreen() {
   const router = useRouter();
-  const { patients, isLoading, error, refresh } = usePatients();
+  const [showArchived, setShowArchived] = useState(false);
+  const { patients, isLoading, error, refresh, restore } = usePatients(showArchived);
   const [query, setQuery] = useState('');
 
   useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
@@ -40,6 +42,26 @@ export function PatientsScreen() {
   const openPatient = (p: Patient) => {
     router.push(
       `/patient-detail?patientId=${encodeURIComponent(p.id)}&patientName=${encodeURIComponent(p.full_name)}` as any,
+    );
+  };
+
+  const confirmRestore = (p: Patient) => {
+    Alert.alert(
+      'Restaurar paciente',
+      `${p.full_name} volverá a tu lista de pacientes activos.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Restaurar',
+          onPress: async () => {
+            try {
+              await restore(p.id);
+            } catch (e: any) {
+              Alert.alert('No se pudo restaurar', e?.message ?? 'Intenta nuevamente');
+            }
+          },
+        },
+      ],
     );
   };
 
@@ -80,6 +102,28 @@ export function PatientsScreen() {
         )}
       </View>
 
+      {/* Active / Archived filter */}
+      <View style={styles.filterRow}>
+        {[
+          { label: 'Activos', value: false },
+          { label: 'Archivados', value: true },
+        ].map((f) => {
+          const active = showArchived === f.value;
+          return (
+            <TouchableOpacity
+              key={f.label}
+              onPress={() => setShowArchived(f.value)}
+              style={[styles.filterChip, active && styles.filterChipActive]}
+              accessibilityRole="button"
+              accessibilityState={active ? { selected: true } : {}}
+              accessibilityLabel={`Ver ${f.label}`}
+            >
+              <Text style={[styles.filterText, active && styles.filterTextActive]}>{f.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
       {isLoading ? (
         <View style={styles.center}>
           <ActivityIndicator color={colors.accent} size="large" />
@@ -95,10 +139,12 @@ export function PatientsScreen() {
       ) : patients.length === 0 ? (
         <View style={styles.center}>
           <View style={styles.emptyIcon}>
-            <Ionicons name="person-outline" size={32} color={colors.textDisabled} />
+            <Ionicons name={showArchived ? 'archive-outline' : 'person-outline'} size={32} color={colors.textDisabled} />
           </View>
-          <Text style={styles.emptyTitle}>Sin pacientes</Text>
-          <Text style={styles.emptySub}>Agrega tu primer paciente con el botón +</Text>
+          <Text style={styles.emptyTitle}>{showArchived ? 'Sin archivados' : 'Sin pacientes'}</Text>
+          <Text style={styles.emptySub}>
+            {showArchived ? 'No tienes pacientes archivados.' : 'Agrega tu primer paciente con el botón +'}
+          </Text>
         </View>
       ) : filtered.length === 0 ? (
         <View style={styles.center}>
@@ -111,14 +157,28 @@ export function PatientsScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => <PatientCard patient={item} onPress={() => openPatient(item)} />}
+          renderItem={({ item }) => (
+            <PatientCard
+              patient={item}
+              archived={showArchived}
+              onPress={() => (showArchived ? confirmRestore(item) : openPatient(item))}
+            />
+          )}
         />
       )}
     </View>
   );
 }
 
-function PatientCard({ patient, onPress }: { patient: Patient; onPress: () => void }) {
+function PatientCard({
+  patient,
+  archived,
+  onPress,
+}: {
+  patient: Patient;
+  archived: boolean;
+  onPress: () => void;
+}) {
   const initials = patient.full_name
     .split(' ')
     .slice(0, 2)
@@ -127,7 +187,7 @@ function PatientCard({ patient, onPress }: { patient: Patient; onPress: () => vo
     .toUpperCase();
 
   const followStatus = followupStatus(patient.next_followup_date);
-  const showFollow = followStatus === 'due' || followStatus === 'soon';
+  const showFollow = !archived && (followStatus === 'due' || followStatus === 'soon');
   const followMeta = followupMetaOf(followStatus);
 
   return (
@@ -138,7 +198,7 @@ function PatientCard({ patient, onPress }: { patient: Patient; onPress: () => vo
       accessible
       accessibilityRole="button"
       accessibilityLabel={`${patient.full_name}, ${patient.patient_code}`}
-      accessibilityHint="Abre la ficha del paciente"
+      accessibilityHint={archived ? 'Restaura al paciente' : 'Abre la ficha del paciente'}
     >
       <View style={styles.cardAvatar}>
         <Text style={styles.cardAvatarText}>{initials}</Text>
@@ -169,7 +229,11 @@ function PatientCard({ patient, onPress }: { patient: Patient; onPress: () => vo
         )}
       </View>
 
-      <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
+      {archived ? (
+        <Ionicons name="arrow-undo" size={20} color={colors.accent} />
+      ) : (
+        <Ionicons name="chevron-forward" size={18} color={colors.textDisabled} />
+      )}
     </TouchableOpacity>
   );
 }
@@ -220,6 +284,24 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   searchInput: { flex: 1, ...typography.bodySm, color: colors.text, paddingVertical: 0 },
+
+  filterRow: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  filterChip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  filterChipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+  filterText: { ...typography.caption, fontWeight: '600', color: colors.textSub },
+  filterTextActive: { color: colors.white },
 
   center: {
     flex: 1,

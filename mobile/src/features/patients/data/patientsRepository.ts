@@ -10,9 +10,9 @@ async function getToken(): Promise<string> {
 }
 
 export const patientsRepository: IPatientRepository = {
-  async list(search?: string): Promise<Patient[]> {
+  async list(opts?: { search?: string; archived?: boolean }): Promise<Patient[]> {
     const token = await getToken();
-    return patientsApi.listPatients(token, search);
+    return patientsApi.listPatients(token, opts);
   },
 
   async create(data: CreatePatientRequest): Promise<Patient> {
@@ -33,5 +33,10 @@ export const patientsRepository: IPatientRepository = {
   async archive(id: string): Promise<void> {
     const token = await getToken();
     await patientsApi.archivePatient(token, id);
+  },
+
+  async restore(id: string): Promise<Patient> {
+    const token = await getToken();
+    return patientsApi.restorePatient(token, id);
   },
 };

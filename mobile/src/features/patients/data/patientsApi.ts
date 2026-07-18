@@ -5,10 +5,23 @@ function authHeader(token: string) {
   return { Authorization: `Bearer ${token}` };
 }
 
-export function listPatients(token: string, search?: string) {
-  const query = search ? `?search=${encodeURIComponent(search)}` : "";
+export function listPatients(
+  token: string,
+  opts?: { search?: string; archived?: boolean },
+) {
+  const parts: string[] = [];
+  if (opts?.search) parts.push(`search=${encodeURIComponent(opts.search)}`);
+  if (opts?.archived) parts.push("archived=true");
+  const query = parts.length ? `?${parts.join("&")}` : "";
   return httpRequest<Patient[]>(`/api/v1/patients/${query}`, {
     method: "GET",
+    headers: authHeader(token),
+  });
+}
+
+export function restorePatient(token: string, id: string) {
+  return httpRequest<Patient>(`/api/v1/patients/${id}/restore/`, {
+    method: "POST",
     headers: authHeader(token),
   });
 }
