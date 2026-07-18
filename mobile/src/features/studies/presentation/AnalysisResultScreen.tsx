@@ -63,6 +63,7 @@ export function AnalysisResultScreen({ patientId, patientName, imageUri, source 
         {state === 'unavailable' && <UnavailableState />}
         {state === 'error' && <ErrorState message={errorMsg} />}
         {state === 'result' && inference && <InferenceResultCard inference={inference} />}
+        {state === 'result' && <Disclaimer />}
 
         {/* ── Actions ────────────────────────────────────── */}
         {(state === 'result' || state === 'unavailable' || state === 'error') && (
@@ -113,6 +114,23 @@ export function AnalysisResultScreen({ patientId, patientName, imageUri, source 
 }
 
 // ── Sub-components ──────────────────────────────────────────────────────────
+
+function Disclaimer() {
+  return (
+    <View
+      style={styles.disclaimer}
+      accessible
+      accessibilityRole="text"
+      accessibilityLabel="Aviso: este resultado es un apoyo diagnóstico basado en inteligencia artificial y no constituye un diagnóstico definitivo. Debe ser validado por un profesional médico."
+    >
+      <Ionicons name="information-circle-outline" size={18} color={colors.textSub} />
+      <Text style={styles.disclaimerText}>
+        Resultado de <Text style={styles.disclaimerStrong}>apoyo diagnóstico</Text> basado en IA. No
+        constituye un diagnóstico definitivo y debe ser validado por un profesional médico.
+      </Text>
+    </View>
+  );
+}
 
 function LoadingState() {
   return (
@@ -184,6 +202,18 @@ const styles = StyleSheet.create({
   },
   patientName: { ...typography.body, fontWeight: '600', color: colors.text, flex: 1 },
   refCode: { ...typography.caption, color: colors.textSub },
+  disclaimer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+  },
+  disclaimerText: { ...typography.caption, color: colors.textSub, flex: 1, lineHeight: 18 },
+  disclaimerStrong: { fontWeight: '700', color: colors.text },
   actionGroup: { gap: spacing.sm },
   primaryAction: {
     flexDirection: 'row',
