@@ -30,7 +30,8 @@ environ.Env.read_env(ROOT_DIR / ".env")
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="unsafe-dev-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DJANGO_DEBUG", default=True)
+# Safe default: OFF. Enable it explicitly in local development via DJANGO_DEBUG=True.
+DEBUG = env.bool("DJANGO_DEBUG", default=False)
 
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     'apps.patients',
     'apps.studies',
     'apps.reports',
+    'apps.administration',
 ]
 
 MIDDLEWARE = [
@@ -162,6 +164,19 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    # Rate limiting. Anonymous traffic is basically login/register, so a tight
+    # anon rate blunts brute-force attempts; the dedicated "login" scope (applied
+    # on the login view) is tighter still. Authenticated clients get a generous
+    # rate so normal clinical use is never throttled.
+    "DEFAULT_THROTTLE_CLASSES": (
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ),
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "30/min",
+        "user": "5000/hour",
+        "login": "10/min",
+    },
 }
 
 SIMPLE_JWT = {
@@ -171,6 +186,20 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": False,
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
+
+# Production security hardening. Only applied when DEBUG is off so local
+# development over plain HTTP keeps working.
+if not DEBUG:
+    # Render (and most PaaS) terminate TLS at a proxy and forward this header.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SESSION_COOKIE_HTTPONLY = True
 
 # Inference server (external ONNX model service)
 INFERENCE_SERVER_URL = env(

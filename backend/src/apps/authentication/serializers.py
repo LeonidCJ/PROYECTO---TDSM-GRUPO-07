@@ -6,16 +6,18 @@ User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
-    role = serializers.ChoiceField(choices=User.Role.choices, default=User.Role.DOCTOR)
 
     class Meta:
         model = User
+        # NOTE: `role` is intentionally NOT exposed here. Public self-registration
+        # always creates a DOCTOR (the model default). Allowing the client to set
+        # the role would be a privilege-escalation hole (anyone could register as
+        # admin). Elevated roles are assigned only by an admin via the admin API.
         fields = (
             "email",
             "password",
             "first_name",
             "last_name",
-            "role",
             "phone",
             "specialty",
             "hospital",
@@ -27,6 +29,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop("password")
+        # Force the safe default regardless of any unexpected input.
+        validated_data["role"] = User.Role.DOCTOR
         user = User.objects.create_user(password=password, **validated_data)
         return user
 
