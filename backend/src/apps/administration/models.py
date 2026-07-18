@@ -25,6 +25,12 @@ class AuditLog(BaseUUIDModel):
         LOGIN_OK = "login_ok", "Login exitoso"
         LOGIN_FAILED = "login_failed", "Login fallido"
         LOGOUT = "logout", "Cierre de sesión"
+        # Administrative actions (actor = the admin who performed them).
+        USER_CREATED = "user_created", "Usuario creado"
+        USER_ROLE_CHANGED = "user_role_changed", "Cambio de rol"
+        USER_ACTIVATED = "user_activated", "Usuario activado"
+        USER_DEACTIVATED = "user_deactivated", "Usuario desactivado"
+        PASSWORD_RESET = "password_reset", "Contraseña restablecida"
 
     # Nullable: a failed login may not map to a real user.
     user = models.ForeignKey(
@@ -40,6 +46,9 @@ class AuditLog(BaseUUIDModel):
     event = models.CharField(max_length=32, choices=Event.choices)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.CharField(max_length=400, blank=True)
+    # Human-readable description, used mainly for administrative actions
+    # (e.g. "Cambió el rol de doctor@x a admin").
+    detail = models.CharField(max_length=300, blank=True)
 
     class Meta:
         ordering = ("-created_at",)
@@ -52,7 +61,9 @@ class AuditLog(BaseUUIDModel):
         return f"{self.event} · {self.email or self.user_id} · {self.created_at:%Y-%m-%d %H:%M}"
 
     @classmethod
-    def record(cls, *, request, event: str, user=None, email: str = "") -> "AuditLog":
+    def record(
+        cls, *, request, event: str, user=None, email: str = "", detail: str = ""
+    ) -> "AuditLog":
         ip = _client_ip(request) if request is not None else None
         agent = ""
         if request is not None:
@@ -63,4 +74,5 @@ class AuditLog(BaseUUIDModel):
             event=event,
             ip_address=ip or None,
             user_agent=agent,
+            detail=detail[:300],
         )

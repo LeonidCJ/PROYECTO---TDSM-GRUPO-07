@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Count
-from rest_framework import status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -31,15 +31,31 @@ class AdminPagination(PageNumberPagination):
 
 
 class AdminUserViewSet(viewsets.ModelViewSet):
-    """Manage users (list, create, update role/active status, delete)."""
+    """Manage users (list, search, create, update role/active/password, delete).
+
+    Sensitive actions are recorded in the audit log with the admin as actor.
+    """
 
     permission_classes = [IsAdmin]
     serializer_class = AdminUserSerializer
     pagination_class = AdminPagination
     queryset = User.objects.all().order_by("-created_at")
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["email", "first_name", "last_name"]
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        AuditLog.record(
+            request=self.request,
+            event=AuditLog.Event.USER_CREATED,
+            user=self.request.user,
+            detail=f"Creó la cuenta {user.email} (rol {user.role})",
+        )
 
     def perform_update(self, serializer):
         target = serializer.instance
+        old_role = target.role
+        old_active = target.is_active
         # Guard: an admin cannot demote or deactivate their own account, so they
         # can never lock themselves (or the last admin) out by accident.
         if target == self.request.user:
@@ -47,7 +63,28 @@ class AdminUserViewSet(viewsets.ModelViewSet):
             new_active = serializer.validated_data.get("is_active", target.is_active)
             if new_role != "admin" or not new_active:
                 raise PermissionDenied("No puedes quitarte tu propio rol de administrador ni desactivarte.")
-        serializer.save()
+        # Password is popped inside the serializer's update(), so read it first.
+        password_changed = bool(serializer.validated_data.get("password"))
+        user = serializer.save()
+
+        admin = self.request.user
+        if user.role != old_role:
+            AuditLog.record(
+                request=self.request, event=AuditLog.Event.USER_ROLE_CHANGED, user=admin,
+                detail=f"Cambió el rol de {user.email} a {user.role}",
+            )
+        if user.is_active != old_active:
+            event = AuditLog.Event.USER_ACTIVATED if user.is_active else AuditLog.Event.USER_DEACTIVATED
+            verb = "Activó" if user.is_active else "Desactivó"
+            AuditLog.record(
+                request=self.request, event=event, user=admin,
+                detail=f"{verb} la cuenta {user.email}",
+            )
+        if password_changed:
+            AuditLog.record(
+                request=self.request, event=AuditLog.Event.PASSWORD_RESET, user=admin,
+                detail=f"Restableció la contraseña de {user.email}",
+            )
 
     def perform_destroy(self, instance):
         if instance == self.request.user:

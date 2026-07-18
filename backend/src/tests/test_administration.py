@@ -128,3 +128,46 @@ def test_audit_endpoint_lists_and_filters(api, admin_user, user):
     filtered = api.get(f"{AUDIT_URL}?event=login_failed")
     assert filtered.status_code == 200
     assert all(row["event"] == "login_failed" for row in filtered.data["results"])
+
+
+# --- Admin user management: create, reset password, search, action audit ------
+
+def test_admin_can_create_user(api, admin_user):
+    api.force_authenticate(user=admin_user)
+    resp = api.post(
+        USERS_URL,
+        {"email": "nuevo@test.com", "password": "secret123", "first_name": "Nuevo", "last_name": "Medico", "role": "doctor"},
+        format="json",
+    )
+    assert resp.status_code == 201
+    assert User.objects.filter(email="nuevo@test.com", role="doctor").exists()
+    assert AuditLog.objects.filter(event=AuditLog.Event.USER_CREATED).exists()
+
+
+def test_admin_can_reset_password(api, admin_user, user):
+    api.force_authenticate(user=admin_user)
+    resp = api.patch(f"{USERS_URL}{user.id}/", {"password": "newsecret123"}, format="json")
+    assert resp.status_code == 200
+    user.refresh_from_db()
+    assert user.check_password("newsecret123")
+    assert AuditLog.objects.filter(event=AuditLog.Event.PASSWORD_RESET).exists()
+
+
+def test_role_change_is_audited(api, admin_user, user):
+    api.force_authenticate(user=admin_user)
+    api.patch(f"{USERS_URL}{user.id}/", {"role": "admin"}, format="json")
+    log = AuditLog.objects.filter(event=AuditLog.Event.USER_ROLE_CHANGED).first()
+    assert log is not None and user.email in log.detail
+
+
+def test_deactivation_is_audited(api, admin_user, user):
+    api.force_authenticate(user=admin_user)
+    api.patch(f"{USERS_URL}{user.id}/", {"is_active": False}, format="json")
+    assert AuditLog.objects.filter(event=AuditLog.Event.USER_DEACTIVATED).exists()
+
+
+def test_user_search(api, admin_user, user):
+    api.force_authenticate(user=admin_user)
+    resp = api.get(f"{USERS_URL}?search={user.email}")
+    assert resp.status_code == 200
+    assert any(u["email"] == user.email for u in resp.data["results"])

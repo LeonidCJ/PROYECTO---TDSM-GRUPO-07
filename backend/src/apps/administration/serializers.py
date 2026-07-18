@@ -60,6 +60,7 @@ class AuditLogSerializer(serializers.ModelSerializer):
             "email",
             "user",
             "user_email",
+            "detail",
             "ip_address",
             "user_agent",
             "created_at",
