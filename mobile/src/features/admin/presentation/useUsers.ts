@@ -14,6 +14,7 @@ export function useUsers() {
   const [hasMore, setHasMore] = useState(false);
   const pageRef = useRef(1);
   const busyRef = useRef(false);
+  const searchRef = useRef("");
 
   const load = useCallback(async (page: number, mode: Mode) => {
     if (busyRef.current) return;
@@ -22,7 +23,7 @@ export function useUsers() {
     else if (mode === "reload") setIsLoading(true);
     setError(null);
     try {
-      const res = await adminRepository.listUsers(page);
+      const res = await adminRepository.listUsers(page, searchRef.current || undefined);
       setUsers((prev) => (mode === "more" ? [...prev, ...res.results] : res.results));
       setHasMore(Boolean(res.next));
       pageRef.current = page;
@@ -40,6 +41,13 @@ export function useUsers() {
   const loadMore = useCallback(() => {
     if (hasMore && !busyRef.current) load(pageRef.current + 1, "more");
   }, [hasMore, load]);
+  const setSearch = useCallback(
+    (q: string) => {
+      searchRef.current = q;
+      load(1, "reload");
+    },
+    [load],
+  );
 
   const applyPatch = useCallback(async (id: string, patch: UserPatch): Promise<PatchResult> => {
     try {
@@ -51,5 +59,5 @@ export function useUsers() {
     }
   }, []);
 
-  return { users, isLoading, refreshing, error, hasMore, reload, refresh, loadMore, applyPatch };
+  return { users, isLoading, refreshing, error, hasMore, reload, refresh, loadMore, setSearch, applyPatch };
 }

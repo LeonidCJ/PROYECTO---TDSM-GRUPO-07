@@ -21,7 +21,15 @@ export type AdminUser = {
   created_at: string;
 };
 
-export type AuditEventType = "login_ok" | "login_failed" | "logout";
+export type AuditEventType =
+  | "login_ok"
+  | "login_failed"
+  | "logout"
+  | "user_created"
+  | "user_role_changed"
+  | "user_activated"
+  | "user_deactivated"
+  | "password_reset";
 
 export type AuditEvent = {
   id: string;
@@ -29,6 +37,7 @@ export type AuditEvent = {
   email: string;
   user: string | null;
   user_email: string | null;
+  detail: string;
   ip_address: string | null;
   user_agent: string;
   created_at: string;
@@ -53,4 +62,16 @@ export type Metrics = {
   recent_logins: AuditEvent[];
 };
 
-export type UserPatch = Partial<Pick<AdminUser, "role" | "is_active">>;
+export type UserPatch = Partial<Pick<AdminUser, "role" | "is_active">> & {
+  password?: string;
+};
+
+export type CreateAdminUser = {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  role: AdminRole;
+  specialty?: string;
+  hospital?: string;
+};

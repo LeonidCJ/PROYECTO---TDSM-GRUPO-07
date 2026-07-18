@@ -1,6 +1,6 @@
 import { getAccessToken } from "@/src/core/storage/secureStorage";
 import { IAdminRepository } from "../domain/IAdminRepository";
-import { AuditEventType, UserPatch } from "../domain/types";
+import { AuditEventType, CreateAdminUser, UserPatch } from "../domain/types";
 import * as adminApi from "./adminApi";
 
 async function getToken(): Promise<string> {
@@ -14,8 +14,12 @@ export const adminRepository: IAdminRepository = {
     return adminApi.getMetrics(await getToken());
   },
 
-  async listUsers(page = 1) {
-    return adminApi.listUsers(await getToken(), page);
+  async listUsers(page = 1, search?: string) {
+    return adminApi.listUsers(await getToken(), page, search);
+  },
+
+  async createUser(data: CreateAdminUser) {
+    return adminApi.createUser(await getToken(), data);
   },
 
   async updateUser(id: string, patch: UserPatch) {

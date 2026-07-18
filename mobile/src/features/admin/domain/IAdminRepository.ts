@@ -2,6 +2,7 @@ import {
   AdminUser,
   AuditEvent,
   AuditEventType,
+  CreateAdminUser,
   Metrics,
   Paginated,
   UserPatch,
@@ -9,7 +10,8 @@ import {
 
 export interface IAdminRepository {
   getMetrics(): Promise<Metrics>;
-  listUsers(page?: number): Promise<Paginated<AdminUser>>;
+  listUsers(page?: number, search?: string): Promise<Paginated<AdminUser>>;
+  createUser(data: CreateAdminUser): Promise<AdminUser>;
   updateUser(id: string, patch: UserPatch): Promise<AdminUser>;
   listAudit(page?: number, event?: AuditEventType): Promise<Paginated<AuditEvent>>;
 }

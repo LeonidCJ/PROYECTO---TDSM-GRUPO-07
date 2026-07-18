@@ -104,6 +104,9 @@ function AuditRow({ event }: { event: AuditEvent }) {
       </View>
       <View style={styles.body}>
         <Text style={styles.who} numberOfLines={1}>{who}</Text>
+        {event.detail ? (
+          <Text style={styles.detail} numberOfLines={2}>{event.detail}</Text>
+        ) : null}
         <Text style={styles.meta}>
           {formatDateTime(event.created_at)}
           {event.ip_address ? ` · ${event.ip_address}` : ""}
@@ -166,7 +169,8 @@ const styles = StyleSheet.create({
   },
   body: { flex: 1, gap: 2 },
   who: { ...typography.bodySm, fontWeight: "600", color: colors.text },
-  meta: { ...typography.caption, color: colors.textSub },
+  detail: { ...typography.caption, color: colors.text, marginTop: 1 },
+  meta: { ...typography.caption, color: colors.textSub, marginTop: 1 },
   badge: { borderRadius: radius.full, paddingHorizontal: spacing.sm, paddingVertical: 2 },
   badgeText: { ...typography.caption, fontWeight: "700" },
 });

@@ -3,6 +3,7 @@ import {
   AdminUser,
   AuditEvent,
   AuditEventType,
+  CreateAdminUser,
   Metrics,
   Paginated,
   UserPatch,
@@ -18,8 +19,21 @@ export function getMetrics(token: string): Promise<Metrics> {
   });
 }
 
-export function listUsers(token: string, page = 1): Promise<Paginated<AdminUser>> {
-  return httpRequest<Paginated<AdminUser>>(`/api/v1/admin/users/?page=${page}`, {
+export function listUsers(
+  token: string,
+  page = 1,
+  search?: string,
+): Promise<Paginated<AdminUser>> {
+  const query = `?page=${page}${search ? `&search=${encodeURIComponent(search)}` : ""}`;
+  return httpRequest<Paginated<AdminUser>>(`/api/v1/admin/users/${query}`, {
+    headers: authHeaders(token),
+  });
+}
+
+export function createUser(token: string, data: CreateAdminUser): Promise<AdminUser> {
+  return httpRequest<AdminUser>("/api/v1/admin/users/", {
+    method: "POST",
+    body: data,
     headers: authHeaders(token),
   });
 }

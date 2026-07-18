@@ -19,6 +19,16 @@ export function auditMetaOf(event: AuditEventType): AuditMeta {
       return { label: "Fallido", color: colors.error, icon: "alert-circle-outline" };
     case "logout":
       return { label: "Salida", color: colors.textSub, icon: "log-out-outline" };
+    case "user_created":
+      return { label: "Usuario creado", color: colors.accent, icon: "person-add-outline" };
+    case "user_role_changed":
+      return { label: "Cambio de rol", color: colors.accent, icon: "swap-horizontal-outline" };
+    case "user_activated":
+      return { label: "Activación", color: colors.success, icon: "checkmark-circle-outline" };
+    case "user_deactivated":
+      return { label: "Desactivación", color: colors.warning, icon: "ban-outline" };
+    case "password_reset":
+      return { label: "Contraseña", color: colors.accent, icon: "key-outline" };
   }
 }
 
