@@ -48,6 +48,4 @@ class Migration(migrations.Migration):
             field=models.BooleanField(default=False),
         ),
         migrations.RunPython(forwards, backwards),
-        migrations.RemoveField(model_name="patient", name="is_smoker"),
-        migrations.RemoveField(model_name="patient", name="has_hematuria"),
     ]
