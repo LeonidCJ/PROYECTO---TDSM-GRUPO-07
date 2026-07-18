@@ -25,6 +25,19 @@ def test_patient_can_be_edited(api, patient):
     assert patient.full_name == "Juan P. Actualizado"
 
 
+def test_clinical_factors_can_be_set(api, patient):
+    resp = api.patch(
+        f"{PATIENTS_URL}{patient.id}/",
+        {"smoking_status": "former", "hematuria_type": "macroscopic", "occupational_exposure": True},
+        format="json",
+    )
+    assert resp.status_code == 200
+    patient.refresh_from_db()
+    assert patient.smoking_status == "former"
+    assert patient.hematuria_type == "macroscopic"
+    assert patient.occupational_exposure is True
+
+
 def test_followup_date_can_be_set(api, patient):
     resp = api.patch(f"{PATIENTS_URL}{patient.id}/", {"next_followup_date": "2026-09-01"}, format="json")
     assert resp.status_code == 200

@@ -137,9 +137,10 @@ def _generate_pdf_bytes(report) -> bytes:
         ("Código", patient.patient_code),
         ("Edad", f"{patient.age} años" if patient.birth_date else "—"),
         ("Sexo", _GENDER_NAME.get(patient.gender, patient.gender or "—")),
-        ("Fumador", "Sí" if patient.is_smoker else "No"),
+        ("Tabaquismo", patient.get_smoking_status_display()),
         ("Cáncer vesical previo", "Sí" if patient.has_previous_bladder_cancer else "No"),
-        ("Hematuria", "Sí" if patient.has_hematuria else "No"),
+        ("Hematuria", patient.get_hematuria_type_display()),
+        ("Exposición ocupacional", "Sí" if patient.occupational_exposure else "No"),
     ]))
 
     # Result

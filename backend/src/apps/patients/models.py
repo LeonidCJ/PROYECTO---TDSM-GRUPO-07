@@ -11,6 +11,18 @@ class Patient(BaseUUIDModel):
         MALE = "male", "Male"
         FEMALE = "female", "Female"
 
+    class SmokingStatus(models.TextChoices):
+        # Former smokers keep an elevated bladder-cancer risk, so a three-state
+        # field is more informative than a boolean (Freedman et al., JAMA 2011).
+        NEVER = "never", "Nunca"
+        FORMER = "former", "Exfumador"
+        CURRENT = "current", "Fumador"
+
+    class HematuriaType(models.TextChoices):
+        NONE = "none", "No"
+        MACROSCOPIC = "macroscopic", "Macroscópica"
+        MICROSCOPIC = "microscopic", "Microscópica"
+
     doctor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -20,9 +32,16 @@ class Patient(BaseUUIDModel):
     full_name = models.CharField(max_length=200)
     birth_date = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=16, choices=Gender.choices)
-    is_smoker = models.BooleanField(default=False)
+    smoking_status = models.CharField(
+        max_length=16, choices=SmokingStatus.choices, default=SmokingStatus.NEVER
+    )
     has_previous_bladder_cancer = models.BooleanField(default=False)
-    has_hematuria = models.BooleanField(default=False)
+    hematuria_type = models.CharField(
+        max_length=16, choices=HematuriaType.choices, default=HematuriaType.NONE
+    )
+    # Occupational exposure to aromatic amines (dye, rubber, paint, leather
+    # industries) is a recognised risk factor (EAU): 5-25% of cases.
+    occupational_exposure = models.BooleanField(default=False)
 
     # Longitudinal follow-up: bladder cancer requires risk-based surveillance
     # (EAU guidelines), so we track the next scheduled cystoscopy per patient.
