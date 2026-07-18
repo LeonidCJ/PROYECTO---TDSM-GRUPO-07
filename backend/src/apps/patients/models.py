@@ -24,6 +24,13 @@ class Patient(BaseUUIDModel):
     has_previous_bladder_cancer = models.BooleanField(default=False)
     has_hematuria = models.BooleanField(default=False)
 
+    # Longitudinal follow-up: bladder cancer requires risk-based surveillance
+    # (EAU guidelines), so we track the next scheduled cystoscopy per patient.
+    next_followup_date = models.DateField(null=True, blank=True)
+    # Clinical records are archived, never hard-deleted (studies reference the
+    # patient with PROTECT, and medical history should be preserved).
+    is_archived = models.BooleanField(default=False)
+
     @property
     def age(self) -> int:
         today = date.today()

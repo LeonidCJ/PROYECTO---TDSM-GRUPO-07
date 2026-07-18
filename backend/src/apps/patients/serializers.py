@@ -21,9 +21,11 @@ class PatientSerializer(serializers.ModelSerializer):
             "is_smoker",
             "has_previous_bladder_cancer",
             "has_hematuria",
+            "next_followup_date",
+            "is_archived",
             "created_at",
         )
-        read_only_fields = ("id", "created_at")
+        read_only_fields = ("id", "is_archived", "created_at")
 
     def get_computed_age(self, obj):
         if obj.birth_date:

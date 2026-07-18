@@ -15,12 +15,17 @@ class StudyViewSet(viewsets.ModelViewSet):
     serializer_class = StudySerializer
 
     def get_queryset(self):
-        return (
+        qs = (
             Study.objects.filter(doctor=self.request.user)
             .select_related("patient")
             .prefetch_related("endoscopic_images__inference_result")
             .order_by("-created_at")
         )
+        # "?patient=<id>" -> the longitudinal timeline of one patient's studies.
+        patient_id = self.request.query_params.get("patient")
+        if patient_id:
+            qs = qs.filter(patient_id=patient_id)
+        return qs
 
     @action(detail=True, methods=["get", "post"], url_path="images")
     def images(self, request, pk=None):
