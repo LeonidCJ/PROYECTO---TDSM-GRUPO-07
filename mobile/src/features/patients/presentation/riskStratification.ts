@@ -24,11 +24,6 @@ export type RiskInput = {
 
 const ORDER: RiskLevel[] = ["low", "intermediate", "high"];
 
-function bumpUp(level: RiskLevel): RiskLevel {
-  const i = ORDER.indexOf(level);
-  return ORDER[Math.min(ORDER.length - 1, i + 1)];
-}
-
 const MONTHS: Record<RiskLevel, 3 | 6 | 12> = { high: 3, intermediate: 6, low: 12 };
 const META: Record<RiskLevel, { label: string; color: string }> = {
   high: { label: "Riesgo alto", color: colors.error },
@@ -36,48 +31,75 @@ const META: Record<RiskLevel, { label: string; color: string }> = {
   low: { label: "Riesgo bajo", color: colors.success },
 };
 
+function scoreToLevel(points: number): RiskLevel {
+  if (points >= 4) return "high";
+  if (points >= 2) return "intermediate";
+  return "low";
+}
+
 /**
  * Simplified, transparent risk orientation for bladder-cancer follow-up.
  *
- * NOTE: this is NOT a formal EAU risk classification (which requires TURBT
- * histopathology: stage, size, multifocality, CIS). It is a heuristic that
- * combines the latest AI result with the patient's clinical risk factors to
- * ORIENT the surveillance interval. It must be reviewed by the physician.
+ * The estimate combines two dimensions and takes the higher of the two:
+ *   - the level implied by the latest AI result (a proxy for grade), and
+ *   - a weighted score over the patient's clinical risk factors.
+ * This keeps the shown factors consistent with the resulting level.
+ *
+ * NOTE: this is NOT the formal EAU risk classification (which requires TURBT
+ * histopathology: stage, grade, size, multifocality, CIS). It is a heuristic
+ * that orients the surveillance interval and must be reviewed by the physician.
  */
 export function assessRisk(input: RiskInput): RiskAssessment {
   const reasons: string[] = [];
 
-  // Base level from the most recent AI classification.
-  let level: RiskLevel;
+  // Dimension 1: level implied by the most recent AI classification.
+  let aiLevel: RiskLevel;
   switch (input.latestLabel) {
     case "HGC":
-      level = "high";
+      aiLevel = "high";
       reasons.push("Resultado de alto grado (HGC)");
       break;
     case "LGC":
-      level = "intermediate";
+      aiLevel = "intermediate";
       reasons.push("Resultado de bajo grado (LGC)");
       break;
     case "NTL":
     case "NST":
-      level = "low";
+      aiLevel = "low";
       reasons.push("Sin tumor / tejido no sospechoso");
       break;
     default:
-      level = "low";
+      aiLevel = "low";
       reasons.push("Sin análisis previo");
   }
 
-  // Clinical risk factors.
+  // Dimension 2: weighted score over clinical risk factors.
+  let points = 0;
   if (input.hasPreviousBladderCancer) {
-    level = bumpUp(level);
+    points += 2;
     reasons.push("Antecedente de cáncer de vejiga");
   }
-  if (input.smokingStatus === "current") reasons.push("Fumador activo");
-  else if (input.smokingStatus === "former") reasons.push("Exfumador");
-  if (input.hematuriaType === "macroscopic") reasons.push("Hematuria macroscópica");
-  else if (input.hematuriaType === "microscopic") reasons.push("Hematuria microscópica");
-  if (input.occupationalExposure) reasons.push("Exposición ocupacional");
+  if (input.hematuriaType === "macroscopic") {
+    points += 2;
+    reasons.push("Hematuria macroscópica");
+  } else if (input.hematuriaType === "microscopic") {
+    points += 1;
+    reasons.push("Hematuria microscópica");
+  }
+  if (input.smokingStatus === "current") {
+    points += 1;
+    reasons.push("Fumador activo");
+  } else if (input.smokingStatus === "former") {
+    reasons.push("Exfumador");
+  }
+  if (input.occupationalExposure) {
+    points += 1;
+    reasons.push("Exposición ocupacional");
+  }
+  const factorLevel = scoreToLevel(points);
+
+  // Final level: the higher of the two dimensions.
+  const level = ORDER[Math.max(ORDER.indexOf(aiLevel), ORDER.indexOf(factorLevel))];
 
   return {
     level,
