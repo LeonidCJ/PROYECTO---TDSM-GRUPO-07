@@ -23,12 +23,14 @@ const GENDERS: { value: Gender; label: string }[] = [
 
 type Props = {
   mode?: 'standalone' | 'analysis';
+  patientId?: string;
 };
 
-export function PatientFormScreen({ mode = 'standalone' }: Props) {
+export function PatientFormScreen({ mode = 'standalone', patientId }: Props) {
   const router         = useRouter();
   const isAnalysisMode = mode === 'analysis';
-  const { form, update, submit, canSubmit, isLoading, error } = usePatientForm();
+  const { form, update, submit, canSubmit, isLoading, isPrefilling, error, isEdit } =
+    usePatientForm(patientId);
 
   const handleSubmit = async () => {
     const patient = await submit();
@@ -48,11 +50,16 @@ export function PatientFormScreen({ mode = 'standalone' }: Props) {
           <Ionicons name="arrow-back" size={22} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>
-          {isAnalysisMode ? 'Nuevo análisis — Paso 1 de 3' : 'Nuevo paciente'}
+          {isEdit ? 'Editar paciente' : isAnalysisMode ? 'Nuevo análisis — Paso 1 de 3' : 'Nuevo paciente'}
         </Text>
         <View style={styles.headerBtn} />
       </View>
 
+      {isPrefilling ? (
+        <View style={styles.prefill}>
+          <ActivityIndicator size="large" color={colors.accent} />
+        </View>
+      ) : (
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -184,10 +191,11 @@ export function PatientFormScreen({ mode = 'standalone' }: Props) {
               <Ionicons name="arrow-forward" size={18} color={colors.white} />
             </>
           ) : (
-            <Text style={styles.submitText}>Guardar paciente</Text>
+            <Text style={styles.submitText}>{isEdit ? 'Guardar cambios' : 'Guardar paciente'}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>
+      )}
     </View>
   );
 }
@@ -238,6 +246,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
+  prefill: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
   // Scroll
   scrollContent: {

@@ -27,11 +27,22 @@ export async function getStudy(token: string, id: string): Promise<Study> {
   return res.json();
 }
 
-export async function listStudies(token: string): Promise<Study[]> {
-  const res = await fetch(`${BASE}/studies/`, {
+export async function listStudies(token: string, patientId?: string): Promise<Study[]> {
+  const query = patientId ? `?patient=${encodeURIComponent(patientId)}` : '';
+  const res = await fetch(`${BASE}/studies/${query}`, {
     headers: authHeaders(token),
   });
   if (!res.ok) throw new Error('No se pudo obtener los estudios');
+  return res.json();
+}
+
+export async function updateStudy(token: string, id: string, data: { notes?: string }): Promise<Study> {
+  const res = await fetch(`${BASE}/studies/${id}/`, {
+    method: 'PATCH',
+    headers: { ...authHeaders(token), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('No se pudo actualizar el estudio');
   return res.json();
 }
 

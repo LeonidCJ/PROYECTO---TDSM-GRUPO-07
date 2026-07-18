@@ -1,8 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import { colors, radius, spacing, typography } from '@/src/shared/theme';
+import { studiesRepository } from '../data/studiesRepository';
 import { InferenceResultCard } from './InferenceResultCard';
 import { useStudy } from './useStudy';
 
@@ -15,6 +26,29 @@ export function StudyDetailScreen({ studyId, patientName }: Props) {
   const router = useRouter();
   const { study, isLoading, error } = useStudy(studyId);
 
+  const [notes, setNotes] = useState('');
+  const [savedNotes, setSavedNotes] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (study) {
+      setNotes(study.notes ?? '');
+      setSavedNotes(study.notes ?? '');
+    }
+  }, [study?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const saveNotes = async () => {
+    setSaving(true);
+    try {
+      await studiesRepository.updateNotes(studyId, notes.trim());
+      setSavedNotes(notes.trim());
+    } catch (e: any) {
+      Alert.alert('No se pudo guardar', e?.message ?? 'Intenta nuevamente');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const openReport = () => {
     router.push(
       `/report-detail?studyId=${encodeURIComponent(studyId)}&patientName=${encodeURIComponent(patientName)}` as any,
@@ -22,6 +56,7 @@ export function StudyDetailScreen({ studyId, patientName }: Props) {
   };
 
   const inference = study?.inference_result ?? null;
+  const notesDirty = notes.trim() !== savedNotes;
 
   return (
     <View style={styles.container}>
@@ -57,25 +92,59 @@ export function StudyDetailScreen({ studyId, patientName }: Props) {
             <Ionicons name="alert-circle-outline" size={40} color={colors.error} />
             <Text style={styles.msg}>{error}</Text>
           </View>
-        ) : inference ? (
-          <>
-            <InferenceResultCard inference={inference} />
-            <TouchableOpacity
-              style={styles.primaryAction}
-              onPress={openReport}
-              activeOpacity={0.85}
-              accessibilityRole="button"
-              accessibilityLabel="Ver o generar informe"
-            >
-              <Ionicons name="document-text-outline" size={18} color={colors.white} />
-              <Text style={styles.primaryActionText}>Ver / Generar informe</Text>
-            </TouchableOpacity>
-          </>
         ) : (
-          <View style={styles.center}>
-            <Ionicons name="image-outline" size={40} color={colors.textDisabled} />
-            <Text style={styles.msg}>Este estudio aún no tiene un resultado de análisis.</Text>
-          </View>
+          <>
+            {inference ? (
+              <>
+                <InferenceResultCard inference={inference} />
+                <TouchableOpacity
+                  style={styles.primaryAction}
+                  onPress={openReport}
+                  activeOpacity={0.85}
+                  accessibilityRole="button"
+                  accessibilityLabel="Ver o generar informe"
+                >
+                  <Ionicons name="document-text-outline" size={18} color={colors.white} />
+                  <Text style={styles.primaryActionText}>Ver / Generar informe</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <View style={styles.center}>
+                <Ionicons name="image-outline" size={40} color={colors.textDisabled} />
+                <Text style={styles.msg}>Este estudio aún no tiene un resultado de análisis.</Text>
+              </View>
+            )}
+
+            {/* Clinical notes */}
+            {study && (
+              <View style={styles.notesCard}>
+                <Text style={styles.notesTitle}>Notas clínicas</Text>
+                <TextInput
+                  style={styles.notesInput}
+                  value={notes}
+                  onChangeText={setNotes}
+                  placeholder="Observaciones, hallazgos, plan de seguimiento…"
+                  placeholderTextColor={colors.textDisabled}
+                  multiline
+                  textAlignVertical="top"
+                  accessibilityLabel="Notas clínicas del estudio"
+                />
+                <TouchableOpacity
+                  style={[styles.notesBtn, (!notesDirty || saving) && styles.notesBtnDisabled]}
+                  onPress={saveNotes}
+                  disabled={!notesDirty || saving}
+                  accessibilityRole="button"
+                  accessibilityLabel="Guardar notas"
+                >
+                  {saving ? (
+                    <ActivityIndicator size="small" color={colors.white} />
+                  ) : (
+                    <Text style={styles.notesBtnText}>{notesDirty ? 'Guardar notas' : 'Notas guardadas'}</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
         )}
       </ScrollView>
     </View>
@@ -123,4 +192,33 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   primaryActionText: { ...typography.body, fontWeight: '700', color: colors.white },
+
+  notesCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  notesTitle: { ...typography.body, fontWeight: '700', color: colors.text },
+  notesInput: {
+    ...typography.bodySm,
+    color: colors.text,
+    minHeight: 90,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.sm,
+    backgroundColor: colors.background,
+  },
+  notesBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.accent,
+    borderRadius: radius.md,
+    paddingVertical: 12,
+  },
+  notesBtnDisabled: { backgroundColor: colors.border },
+  notesBtnText: { ...typography.bodySm, fontWeight: '700', color: colors.white },
 });

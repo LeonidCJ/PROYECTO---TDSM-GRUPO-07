@@ -20,9 +20,14 @@ export const studiesRepository: IStudiesRepository = {
     return studiesApi.getStudy(token, id);
   },
 
-  async list(): Promise<Study[]> {
+  async list(patientId?: string): Promise<Study[]> {
     const token = await getToken();
-    return studiesApi.listStudies(token);
+    return studiesApi.listStudies(token, patientId);
+  },
+
+  async updateNotes(id: string, notes: string): Promise<Study> {
+    const token = await getToken();
+    return studiesApi.updateStudy(token, id, { notes });
   },
 
   async uploadImage(studyId: string, imageUri: string, source?: ImageSource): Promise<EndoscopicImage> {

@@ -9,7 +9,15 @@ export type Patient = {
   is_smoker: boolean;
   has_previous_bladder_cancer: boolean;
   has_hematuria: boolean;
+  next_followup_date: string | null;
+  is_archived: boolean;
   created_at: string;
+};
+
+export type UpdatePatientRequest = Partial<
+  Omit<CreatePatientRequest, "age"> & { age: number }
+> & {
+  next_followup_date?: string | null;
 };
 
 export type CreatePatientRequest = {

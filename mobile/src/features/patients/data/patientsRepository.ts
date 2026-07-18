@@ -1,6 +1,6 @@
 import { getAccessToken } from "@/src/core/storage/secureStorage";
 import { IPatientRepository } from "../domain/IPatientRepository";
-import { CreatePatientRequest, Patient } from "../domain/types";
+import { CreatePatientRequest, Patient, UpdatePatientRequest } from "../domain/types";
 import * as patientsApi from "./patientsApi";
 
 async function getToken(): Promise<string> {
@@ -10,9 +10,9 @@ async function getToken(): Promise<string> {
 }
 
 export const patientsRepository: IPatientRepository = {
-  async list(): Promise<Patient[]> {
+  async list(search?: string): Promise<Patient[]> {
     const token = await getToken();
-    return patientsApi.listPatients(token);
+    return patientsApi.listPatients(token, search);
   },
 
   async create(data: CreatePatientRequest): Promise<Patient> {
@@ -23,5 +23,15 @@ export const patientsRepository: IPatientRepository = {
   async getById(id: string): Promise<Patient> {
     const token = await getToken();
     return patientsApi.getPatient(token, id);
+  },
+
+  async update(id: string, data: UpdatePatientRequest): Promise<Patient> {
+    const token = await getToken();
+    return patientsApi.updatePatient(token, id, data);
+  },
+
+  async archive(id: string): Promise<void> {
+    const token = await getToken();
+    await patientsApi.archivePatient(token, id);
   },
 };
