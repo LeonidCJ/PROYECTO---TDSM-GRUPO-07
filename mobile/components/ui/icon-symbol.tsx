@@ -23,6 +23,9 @@ const MAPPING = {
   "clock.fill": "history",
   "gearshape.fill": "settings",
   "person.crop.circle.fill": "person",
+  "square.grid.2x2.fill": "dashboard",
+  "person.2.fill": "group",
+  "lock.shield.fill": "security",
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
 } as IconMapping;

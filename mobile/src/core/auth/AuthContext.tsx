@@ -49,12 +49,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     let profile = await getUserProfile();
-    if (!profile && access) {
+    // Refresh from the server when there is no cached profile OR the cached one
+    // predates the `role` field (older app versions). Without the role the gate
+    // cannot decide the area and would stall on an unmatched route.
+    if (access && (!profile || !profile.role)) {
       try {
         profile = await authRepository.getMe(access);
         await setUserProfile(profile);
       } catch {
-        profile = null;
+        // Keep whatever we had (possibly null) if the refresh fails offline.
       }
     }
     setUser(profile);

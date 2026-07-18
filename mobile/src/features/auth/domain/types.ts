@@ -25,11 +25,15 @@ export type AuthTokens = {
   refresh: string;
 };
 
+export type Role = "admin" | "doctor";
+
 export type UserProfile = {
-  id: number;
+  // Backend uses a UUID primary key, so this is a string, not a number.
+  id: string;
   email: string;
   first_name: string;
   last_name: string;
+  role: Role;
   phone?: string;
   specialty?: Specialty;
   hospital?: string;

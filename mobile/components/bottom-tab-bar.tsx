@@ -6,20 +6,34 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { colors, radius, spacing, typography } from '@/src/shared/theme';
 
 const LABELS: Record<string, string> = {
-  index:    'Inicio',
-  analysis: 'Análisis',
-  history:  'Historial',
-  profile:  'Perfil',
+  index:     'Inicio',
+  analysis:  'Análisis',
+  history:   'Historial',
+  profile:   'Perfil',
+  // Admin area
+  dashboard: 'Panel',
+  users:     'Usuarios',
+  audit:     'Accesos',
 };
 
 const ICONS: Record<
   string,
-  'house.fill' | 'chart.bar.fill' | 'clock.fill' | 'person.crop.circle.fill'
+  | 'house.fill'
+  | 'chart.bar.fill'
+  | 'clock.fill'
+  | 'person.crop.circle.fill'
+  | 'square.grid.2x2.fill'
+  | 'person.2.fill'
+  | 'lock.shield.fill'
 > = {
-  index:    'house.fill',
-  analysis: 'chart.bar.fill',
-  history:  'clock.fill',
-  profile:  'person.crop.circle.fill',
+  index:     'house.fill',
+  analysis:  'chart.bar.fill',
+  history:   'clock.fill',
+  profile:   'person.crop.circle.fill',
+  // Admin area
+  dashboard: 'square.grid.2x2.fill',
+  users:     'person.2.fill',
+  audit:     'lock.shield.fill',
 };
 
 export function BottomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
